@@ -1,0 +1,10 @@
+WARNING Couldn't open ignore database: [Errno 2] No such file or directory: 'test-conf/ignores.conf'
+INFO Shutdown initiated.
+INFO Killing Driver objects.
+INFO Killing Irc objects.
+INFO Shutdown complete.
+WARNING Couldn't open ignore database: [Errno 2] No such file or directory: 'test-conf/ignores.conf'
+INFO Shutdown initiated.
+INFO Killing Driver objects.
+INFO Killing Irc objects.
+INFO Shutdown complete.
