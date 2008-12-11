@@ -13,7 +13,8 @@ import time
 import socket
 import threading
 
-from site_specific_config import MY_SOCKETWRITER_PASS
+import site_specific_config 
+MY_SOCKETWRITER_PASS  = site_specific_config.MY_SOCKETWRITER_PASS
 
 class SocketWriter(callbacks.Plugin):
     """SocketWriter """
