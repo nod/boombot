@@ -325,7 +325,7 @@ class QuoteGrabs(callbacks.Plugin):
                             n = n.strip()
                             if n:
                                 randreply = self._random_and_strip_addressed(channel,n)
-                                irc.reply(randreply))
+                                irc.reply(randreply)
                     return
                 else:
                     irc.reply(self.db.random(channel, nick))
