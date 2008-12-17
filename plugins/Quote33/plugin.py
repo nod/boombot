@@ -288,7 +288,7 @@ class QuoteGrabs(callbacks.Plugin):
 
     def _strip_addressed(self, s):
         parts = s.split(">") # split on end of nick <blah>
-        if len(parts) < 2: return qq
+        if len(parts) < 2: return s
         msgparts = parts[1].split(":")
         if len(msgparts) > 1: #assume blah: exists
             msgparts = "".join(msgparts[1:])
