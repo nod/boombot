@@ -289,6 +289,7 @@ class QuoteGrabs(callbacks.Plugin):
         # this really should be handed off to a regex -jk-
         qq = self.db.random(channel, nick)
         parts = qq.split(">") # split on end of nick <blah>
+        if len(parts) < 2: return qq
         msgparts = parts[1].split(":")
         if len(msgparts) > 1: #assume blah: exists
             msgparts = "".join(msgparts[1:])
@@ -316,7 +317,6 @@ class QuoteGrabs(callbacks.Plugin):
                         return
                     while n >= 1:
                         randreply = self._random_and_strip_addressed(channel)
-
                         irc.reply(randreply)
                         n -= 1
                     if len(matches) > 1:
