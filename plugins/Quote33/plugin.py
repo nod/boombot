@@ -285,16 +285,21 @@ class QuoteGrabs(callbacks.Plugin):
                       Raise=True)
     list = wrap(list, ['channeldb', 'nick'])
 
-    def _random_and_strip_addressed(self, channel,nick=None):
-        # this really should be handed off to a regex -jk-
-        qq = self.db.random(channel, nick)
-        parts = qq.split(">") # split on end of nick <blah>
+
+    def _strip_addressed(self, s):
+        parts = s.split(">") # split on end of nick <blah>
         if len(parts) < 2: return qq
         msgparts = parts[1].split(":")
         if len(msgparts) > 1: #assume blah: exists
             msgparts = "".join(msgparts[1:])
             return "%s>%s" % (parts[0], msgparts)
-        else: return qq
+        else: return s
+
+
+    def _random_and_strip_addressed(self, channel,nick=None):
+        # this really should be handed off to a regex -jk-
+        qq = self.db.random(channel, nick)
+        return self._strip_addressed(qq)
 
     def random(self, irc, msg, args, channel, nick):
         """[<channel>] [<nick>]
@@ -324,8 +329,7 @@ class QuoteGrabs(callbacks.Plugin):
                         for n in niks.split(','):
                             n = n.strip()
                             if n:
-                                randreply = self._random_and_strip_addressed(channel,n)
-                                irc.reply(randreply)
+                                irc.reply(self._strip_addressed(self.db.getQuote(channel, n)))
                     return
                 else:
                     irc.reply(self.db.random(channel, nick))
