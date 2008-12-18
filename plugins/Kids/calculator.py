@@ -8,7 +8,7 @@
 # Copyright 2003-2006 by Paul McGuire
 #
 from pyparsing import Literal,CaselessLiteral,Word,Combine,Group,Optional,\
-    ZeroOrMore,Forward,nums,alphas
+    OneOrMore,ZeroOrMore,Forward,nums,alphas
 import math
 import operator
 
@@ -26,7 +26,7 @@ bnf = None
 def BNF():
     """
     expop   :: '^'
-    multop  :: '*' | '/'
+    multop  :: '*' | '/' | '>>' | '<<' | '|' | '&'
     addop   :: '+' | '-'
     integer :: ['+' | '-'] '0'..'9'+
     atom    :: PI | E | real | fn '(' expr ')' | '(' expr ')'
@@ -38,6 +38,7 @@ def BNF():
     if not bnf:
         point = Literal( "." )
         e     = CaselessLiteral( "E" )
+        hexval = Combine("0x" + nums+OneOrMore('abcdefABCDEF')).setParseAction(lambda x:int(x,16))
         fnumber = Combine( Word( "+-"+nums, nums ) +
                            Optional( point + Optional( Word( nums ) ) ) +
                            Optional( e + Word( "+-"+nums, nums ) ) )
@@ -47,15 +48,19 @@ def BNF():
         minus = Literal( "-" )
         mult  = Literal( "*" )
         div   = Literal( "/" )
+        lshift  = Literal( "<<" )
+        rshift  = Literal( ">>" )
+        or_  = Literal( "|" )
+        and_  = Literal( "&" )
         lpar  = Literal( "(" ).suppress()
         rpar  = Literal( ")" ).suppress()
         addop  = plus | minus
-        multop = mult | div
+        multop = mult | div | lshift | rshift | or_ | and_
         expop = Literal( "^" )
         pi    = CaselessLiteral( "PI" )
 
         expr = Forward()
-        atom = (Optional("-") + ( pi | e | fnumber | ident + lpar + expr + rpar ).setParseAction( pushFirst ) | ( lpar + expr.suppress() + rpar )).setParseAction(pushUMinus)
+        atom = (Optional("-") + ( pi | e | fnumber | hexval | ident + lpar + expr + rpar ).setParseAction( pushFirst ) | ( lpar + expr.suppress() + rpar )).setParseAction(pushUMinus)
 
         # by defining exponentiation as "atom [ ^ factor ]..." instead of "atom [ ^ atom ]...", we get right-to-left exponents, instead of left-to-righ
         # that is, 2^3^2 = 2^(3^2), not (2^3)^2.
@@ -73,6 +78,10 @@ opn = { "+" : operator.add,
         "-" : operator.sub,
         "*" : operator.mul,
         "/" : operator.truediv,
+        ">>" : operator.rshift,
+        "<<" : operator.lshift,
+        "|" : operator.or_,
+        "&" : operator.and_,
         "^" : operator.pow }
 fn  = { "sin" : math.sin,
         "cos" : math.cos,
