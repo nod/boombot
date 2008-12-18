@@ -38,7 +38,7 @@ def BNF():
     if not bnf:
         point = Literal( "." )
         e     = CaselessLiteral( "E" )
-        hexval = Combine("0x" + nums+OneOrMore('abcdefABCDEF')).setParseAction(lambda x:int(x,16))
+        hexnum = Combine("0x" + OneOrMore(nums + 'abcdefABCDEF')).setParseAction(lambda x:int(x,16))
         fnumber = Combine( Word( "+-"+nums, nums ) +
                            Optional( point + Optional( Word( nums ) ) ) +
                            Optional( e + Word( "+-"+nums, nums ) ) )
@@ -60,7 +60,7 @@ def BNF():
         pi    = CaselessLiteral( "PI" )
 
         expr = Forward()
-        atom = (Optional("-") + ( pi | e | fnumber | hexval | ident + lpar + expr + rpar ).setParseAction( pushFirst ) | ( lpar + expr.suppress() + rpar )).setParseAction(pushUMinus)
+        atom = (Optional("-") + ( pi | e | fnumber | hexnum | ident + lpar + expr + rpar ).setParseAction( pushFirst ) | ( lpar + expr.suppress() + rpar )).setParseAction(pushUMinus)
 
         # by defining exponentiation as "atom [ ^ factor ]..." instead of "atom [ ^ atom ]...", we get right-to-left exponents, instead of left-to-righ
         # that is, 2^3^2 = 2^(3^2), not (2^3)^2.
