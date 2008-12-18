@@ -8,8 +8,9 @@
 # Copyright 2003-2006 by Paul McGuire
 #
 from pyparsing import Literal,CaselessLiteral,Word,Combine,Group,Optional,\
-    OneOrMore,ZeroOrMore,Forward,nums,alphas
+    oneOf,OneOrMore,ZeroOrMore,Forward,nums,alphas
 import math
+import sys
 import operator
 
 exprStack = []
@@ -28,6 +29,7 @@ def BNF():
     expop   :: '^'
     multop  :: '*' | '/' | '>>' | '<<' | '|' | '&'
     addop   :: '+' | '-'
+    hex     :: '0x' + integer
     integer :: ['+' | '-'] '0'..'9'+
     atom    :: PI | E | real | fn '(' expr ')' | '(' expr ')'
     factor  :: atom [ expop factor ]*
@@ -35,10 +37,12 @@ def BNF():
     expr    :: term [ addop term ]*
     """
     global bnf
+
     if not bnf:
         point = Literal( "." )
         e     = CaselessLiteral( "E" )
-        hexnum = Combine("0x" + OneOrMore(nums + 'abcdefABCDEF')).setParseAction(lambda x:int(x,16))
+        hexnum = CaselessLiteral("0x") + OneOrMore(oneOf(nums + 'a b c d e f A B C D E F'))
+        hexnum.setParseAction(lambda s,l,t:str(int(''.join(t),16)))
         fnumber = Combine( Word( "+-"+nums, nums ) +
                            Optional( point + Optional( Word( nums ) ) ) +
                            Optional( e + Word( "+-"+nums, nums ) ) )
@@ -60,7 +64,7 @@ def BNF():
         pi    = CaselessLiteral( "PI" )
 
         expr = Forward()
-        atom = (Optional("-") + ( pi | e | fnumber | hexnum | ident + lpar + expr + rpar ).setParseAction( pushFirst ) | ( lpar + expr.suppress() + rpar )).setParseAction(pushUMinus)
+        atom = (Optional("-") + ( pi | e | hexnum | fnumber | ident + lpar + expr + rpar ).setParseAction( pushFirst ) | ( lpar + expr.suppress() + rpar )).setParseAction(pushUMinus)
 
         # by defining exponentiation as "atom [ ^ factor ]..." instead of "atom [ ^ atom ]...", we get right-to-left exponents, instead of left-to-righ
         # that is, 2^3^2 = 2^(3^2), not (2^3)^2.
@@ -78,10 +82,10 @@ opn = { "+" : operator.add,
         "-" : operator.sub,
         "*" : operator.mul,
         "/" : operator.truediv,
-        ">>" : operator.rshift,
-        "<<" : operator.lshift,
-        "|" : operator.or_,
-        "&" : operator.and_,
+        ">>" : lambda x,y: operator.rshift(int(x),int(y)),
+        "<<" : lambda x,y: operator.lshift(int(x),int(y)),
+        "|" : lambda x,y: operator.or_(int(x),int(y)),
+        "&" : lambda x,y: operator.and_(int(x),int(y)),
         "^" : operator.pow }
 fn  = { "sin" : math.sin,
         "cos" : math.cos,
@@ -94,7 +98,7 @@ def evaluateStack( s ):
     op = s.pop()
     if op == 'unary -':
         return -evaluateStack( s )
-    if op in "+-*/^":
+    if op in "+-*/^<<>>|&":
         op2 = evaluateStack( s )
         op1 = evaluateStack( s )
         return opn[op]( op1, op2 )
@@ -161,6 +165,12 @@ if __name__ == "__main__":
     test( "sgn(-2)", -1 )
     test( "sgn(0)", 0 )
     test( "sgn(0.1)", 1 )
+    test( "8>>2", 2 )
+    test( "8<<2", 32 )
+    test( "8|2", 10 )
+    test( "8&2", 0 )
+    test( "4 + 0xb", 15 )
+    test( "4 + 0xb4", 184 )
     import doctest
     doctest.testmod()
 
