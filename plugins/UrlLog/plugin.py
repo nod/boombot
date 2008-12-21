@@ -1,6 +1,10 @@
 ###
 ###
 
+import os
+import ConfigParser
+from Goog.safebrowsing.query_lookup import Lookup
+
 import re
 
 import pydelicious
@@ -75,14 +79,13 @@ class UrlLog(callbacks.PluginRegexp):
         r"https?://[^\])>\s]{5,}.+$"
         try:
             channel = msg.args[0]
-            if not irc.isChannel(channel):
-                return
+            if not irc.isChannel(channel): return
             str = match.group().split()
             url = str[0]
             domain = urlsplit(url)[1]
+            # just hide certain URLs
             if re.match(".*ibm.com$",domain.lower()):
                 return
-
             if gethostbyname(domain):
                 desc = url
                 if len(str) > 1:
@@ -91,12 +94,14 @@ class UrlLog(callbacks.PluginRegexp):
                             desc = ' '.join(str[2:])
                     else:
                         desc = ' '.join(str[1:])
-                #test = "url: %s, tag: %s, desc: %s" % (url, msg.nick, desc)
-                res = pydelicious.add(self.__dUser,self.__dPass,url,url,msg.nick,desc)
-                #if not res['result'][0] and res['result'][1] == 'item already exists':
-                    #irc.reply('Someone already posted that URL!')
-        except gaierror:
-            pass
+               # now check that it's not malicious 
+                config = ConfigParser.ConfigParser()
+                config.readfp(open(os.path.expanduser('~/.safebrowsing.cfg')))
+                safebrowsing_db_path = config.get('safebrowsing', 'db_path')
+                lookup = Lookup(safebrowsing_db_path)
+                verdict = lookup.lookup_by_url(args[0])
+                if not verdict:
+                  res = pydelicious.add(self.__dUser,self.__dPass,url,url,msg.nick,desc)
         except:
             pass
 
