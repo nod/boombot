@@ -44,7 +44,7 @@ class Goog(callbacks.Plugin):
     def safe(self, irc, msg, args):
         """[url]
         google safebrowsing lookup"""
-        if len(args) != 1:
+        if len(args) != 1 or not args[0].startswith("http"):
             irc.reply("bzzt pass in a url")
             return
         config = ConfigParser.ConfigParser()
