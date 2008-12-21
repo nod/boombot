@@ -105,8 +105,10 @@ class UrlLog(callbacks.PluginRegexp):
                 if not verdict:
                     res = pydelicious.add(self.__dUser,self.__dPass,url,url,msg.nick,desc)
                 else:
-                    irc.reply("FJEER! MALICIOUS!  Not adding %s to del.icio.us" % url)
-
+                    uuu = url.replace("http", "hXXp")
+                    if len(uuu) > 14: uuu = uuu[:9] + "..." + uuu[-5:]
+                    else: uuu = uuu[:8] + "..."
+                    irc.reply("MALICIOUS URL! Not saving %s to del.icio.us" % uuu)
         except:
             pass
 
