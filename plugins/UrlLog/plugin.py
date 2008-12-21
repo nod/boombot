@@ -23,8 +23,10 @@ class UrlLog(callbacks.PluginRegexp):
     def __init__(self, irc):
         self.__parent = super(UrlLog, self)
         self.__parent.__init__(irc)
-        self.__dUser = 'url33ad'
-        self.__dPass = 'b0tl3r'
+        config = ConfigParser.ConfigParser()
+        config.readfp(open(os.path.expanduser('~/.boombot.cfg')))
+        self.__dUser = config.get('urllog', 'user')
+        self.__dPass = config.get('urllog', 'pass')
 
     def die(self):
         pass
@@ -96,7 +98,7 @@ class UrlLog(callbacks.PluginRegexp):
                         desc = ' '.join(str[1:])
                # now check that it's not malicious 
                 config = ConfigParser.ConfigParser()
-                config.readfp(open(os.path.expanduser('~/.safebrowsing.cfg')))
+                config.readfp(open(os.path.expanduser('~/.boombot.cfg')))
                 safebrowsing_db_path = config.get('safebrowsing', 'db_path')
                 lookup = Lookup(safebrowsing_db_path)
                 verdict = lookup.lookup_by_url(url)

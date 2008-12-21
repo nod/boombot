@@ -17,7 +17,7 @@ def main():
         initdb = True
     else: initdb = False
     config = ConfigParser.ConfigParser()
-    config.readfp(open(os.path.expanduser('~/.safebrowsing.cfg')))
+    config.readfp(open(os.path.expanduser('~/.boombot.cfg')))
     safebrowsing_db_path = config.get('safebrowsing', 'db_path')
     api_key = config.get('safebrowsing', 'api_key')
     data_url = (

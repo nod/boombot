@@ -48,7 +48,7 @@ class Goog(callbacks.Plugin):
             irc.reply("bzzt pass in a url")
             return
         config = ConfigParser.ConfigParser()
-        config.readfp(open(os.path.expanduser('~/.safebrowsing.cfg')))
+        config.readfp(open(os.path.expanduser('~/.boombot.cfg')))
         safebrowsing_db_path = config.get('safebrowsing', 'db_path')
         lookup = Lookup(safebrowsing_db_path)
         verdict = lookup.lookup_by_url(args[0])
