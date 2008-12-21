@@ -55,7 +55,7 @@ class Goog(callbacks.Plugin):
         if verdict:
             irc.reply("google says BEWARE (%s) of %s" % (verdict,args[0]))
         else:
-            irc.reply("google says nada about %s" % args[0]).
+            irc.reply("google says nada about %s" % args[0])
 
     def gcalc(self, irc, msg, args):	
         """google calculatah"""
