@@ -99,9 +99,12 @@ class UrlLog(callbacks.PluginRegexp):
                 config.readfp(open(os.path.expanduser('~/.safebrowsing.cfg')))
                 safebrowsing_db_path = config.get('safebrowsing', 'db_path')
                 lookup = Lookup(safebrowsing_db_path)
-                verdict = lookup.lookup_by_url(args[0])
+                verdict = lookup.lookup_by_url(url)
                 if not verdict:
                     res = pydelicious.add(self.__dUser,self.__dPass,url,url,msg.nick,desc)
+                else:
+                    irc.reply("FJEER! MALICIOUS!  Not adding %s to del.icio.us" % url)
+
         except:
             pass
 
