@@ -1,6 +1,10 @@
 ###
 ###
 
+import os
+import ConfigParser
+from safebrowsing.query_lookup import Lookup
+
 import re
 import supybot.conf as conf
 import supybot.utils as utils
@@ -35,6 +39,23 @@ class Goog(callbacks.Plugin):
             irc.reply(ircStr)
         except:
             irc.reply('doh.  meltdown')
+
+
+    def safe(self, irc, msg, args):
+        """[url]
+        google safebrowsing lookup"""
+        if len(args) != 1:
+            irc.reply("bzzt pass in a url")
+            return
+        config = ConfigParser.ConfigParser()
+        config.readfp(open(os.path.expanduser('~/.safebrowsing.cfg')))
+        safebrowsing_db_path = config.get('safebrowsing', 'db_path')
+        lookup = Lookup(safebrowsing_db_path)
+        verdict = lookup.lookup_by_url(args[0])
+        if verdict:
+            irc.reply("google says BEWARE (%s) of %s" % (verdict,args[0]))
+        else:
+            irc.reply("google says nada about %s" % args[0]).
 
     def gcalc(self, irc, msg, args):	
         """google calculatah"""

@@ -1,0 +1,12 @@
+==============
+CONTRIBUTORS
+==============
+
+The primary contributor so far has been:
+
+    * Thejaswi Puthraya
+
+Here is a list of much appreciated contributors who have
+helped improve safebrowsing-python.
+
+    * Marcel Chastain
