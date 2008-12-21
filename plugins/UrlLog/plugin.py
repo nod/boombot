@@ -101,7 +101,7 @@ class UrlLog(callbacks.PluginRegexp):
                 lookup = Lookup(safebrowsing_db_path)
                 verdict = lookup.lookup_by_url(args[0])
                 if not verdict:
-                  res = pydelicious.add(self.__dUser,self.__dPass,url,url,msg.nick,desc)
+                    res = pydelicious.add(self.__dUser,self.__dPass,url,url,msg.nick,desc)
         except:
             pass
 
