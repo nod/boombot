@@ -3,7 +3,7 @@
 
 import os
 import ConfigParser
-from safebrowsing.query_lookup import Lookup
+from safebrowsing import Lookup
 
 import re
 import supybot.conf as conf

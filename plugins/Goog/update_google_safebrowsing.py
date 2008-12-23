@@ -8,7 +8,7 @@
 import os
 import sys
 import ConfigParser
-from safebrowsing.prepare_db import Google_Blacklist
+from safebrowsing import Google_Blacklist
 
 
 def main():

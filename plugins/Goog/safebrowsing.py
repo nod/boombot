@@ -1,3 +1,11 @@
+# borrowed and merged from
+# http://code.google.com/p/safebrowsing-python/
+# the license for this file can be found at 
+# http://code.google.com/p/safebrowsing-python/source/browse/trunk/LICENSE.txt
+#
+# This code is the combination of multiple files from the safebrowsing-python
+# framework.  Their work is much appreciated.
+
 import re
 import urllib2
 import string
