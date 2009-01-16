@@ -38,7 +38,9 @@ class Outside(callbacks.Plugin):
         forecasts = soup.findAll('b')
         ret = loc + ' - '
         for i in range(2,5):
-            ret += forecasts[i].next.upper() + forecasts[i].nextSibling + ' '
+            try:
+                ret += forecasts[i].next.upper() + forecasts[i].nextSibling + ' '
+            except: pass
         irc.reply(ret)
     forecast = wrap(forecast, ['text'])
 
