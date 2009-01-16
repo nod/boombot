@@ -48,14 +48,23 @@ class Outside(callbacks.Plugin):
             location can be either zip or city, state  
             (sorry, you international folks have to go look out a window)
             tells you the current weather for your area"""
+
         soup = self._getsoup(loc,3)  # 3 is current conditions
-        loc = soup.div.contents[2].strip()
-        gps = soup.div.contents[8].strip().replace('&nbsp;','')
-        cur = soup.div.contents[12].strip().replace('&deg;','')
-        tmp = soup.div.contents[14].strip().replace('&deg;','').replace(' ','')
-        hum = soup.div.contents[16].strip().replace(' ','')
-        wnd = soup.div.contents[18].strip().replace(' ','')
-        irc.reply(" - ".join( (loc,tmp,cur,hum,wnd,gps)))
+        conditions = []
+        try: conditions.append(soup.div.contents[2].strip()) # location
+        except: pass
+        try: conditions.append(soup.div.contents[8].strip().replace('&nbsp;','')) # gps
+        except: pass
+        try: conditions.append(soup.div.contents[12].strip().replace('&deg;','')) # conditions
+        except: pass
+        try: conditions.append(soup.div.contents[14].strip().replace('&deg;','').replace(' ','')) # temp
+        except: pass
+        try: conditions.append(soup.div.contents[16].strip().replace(' ','')) # humidity
+        except: pass
+        try: conditions.append(soup.div.contents[18].strip().replace(' ','')) # wind
+        except: pass
+        irc.reply(" - ".join(conditions))
+
     weather = wrap(weather, ['text'])
 
     def errout(self,irc,msg):
