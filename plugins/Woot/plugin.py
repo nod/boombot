@@ -24,8 +24,9 @@ class Woot(callbacks.Plugin):
 
 
     def __woot_reply(self, irc, soup):
-            prod =soup.find('h3',attrs={'id':'TitleHeader'})
-            price = soup.find('span', attrs={'id':'PriceSpan'})
+            descr =soup.find('div',attrs={'class':'productDescription'})
+            prod = descr.find('h2')
+            price = descr.find('h3')
             wootitem = "%s - %s" % (prod.contents[0], price.contents[0])
             soldout = soup.find('div', attrs={'class':'SoldOutPanel'})
             if soldout:
