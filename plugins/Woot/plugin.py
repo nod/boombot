@@ -7,10 +7,8 @@ import supybot.callbacks as callbacks
 import sys,time,random,string
 # from BeautifulSoupJK import BeautifulSoup
 from BeautifulSoup import BeautifulSoup
-import urllib
 import urllib2
 import re
-import xml.etree.ElementTree as ET
 
 
 class Woot(callbacks.Plugin):
@@ -28,7 +26,7 @@ class Woot(callbacks.Plugin):
             prod = descr.find('h2')
             price = descr.find('h3')
             wootitem = "%s - %s" % (prod.contents[0], price.contents[0])
-            soldout = soup.find('div', attrs={'class':'SoldOutPanel'})
+            soldout = soup.find('a', attrs={'class':'soldOut'})
             if soldout:
                 wootitem += " (Sold Out!)"
             wootoff = self.__wootoff(soup)
@@ -105,13 +103,14 @@ class Woot(callbacks.Plugin):
     def __wootoff(self, soup):
         """woot! wootoff determination (test only)"""
         try:
-            wootoff = soup.find('div', attrs={'id':'ctl00_ContentPlaceHolder_WootOffPanel'})
+            wootoff = soup.find('div', attrs={'id':'ctl00_ctl00_ContentPlaceHolderLeadIn_ContentPlaceHolderLeadIn_SaleControl_PanelWootOff'})
             if not wootoff: return None
             else:
-                wootoffpct = wootoff.find("div", {'class':'bar'})
+                wootoffpct = wootoff.find("div", {'class':'wootOffProgressBarValue'})
                 if not wootoffpct: return "SoldOut!"
                 s = wootoffpct.get('style')
-                return s.split().pop() + " left"
+                left = re.search(r'(\d+%)', s.split().pop())
+                return left.group(1) + " left"
         except TypeError:
             return None
 
@@ -120,7 +119,7 @@ class Woot(callbacks.Plugin):
         """fetch woot! web content"""
         try:
             # page = urllib.urlopen("http://www.woot.com").read()
-            page = urllib.urlopen(wooturl).read()
+            page = urllib2.urlopen(wooturl).read()
             soup = BeautifulSoup(page)
             return soup
         except IOError:
