@@ -3,7 +3,7 @@
 
 import os
 import ConfigParser
-from Goog.safebrowsing.query_lookup import Lookup
+from safebrowsing.query_lookup import Lookup
 
 import re
 
@@ -97,20 +97,22 @@ class UrlLog(callbacks.PluginRegexp):
                     else:
                         desc = ' '.join(str[1:])
                # now check that it's not malicious 
-                config = ConfigParser.ConfigParser()
-                config.readfp(open(os.path.expanduser('~/.boombot.cfg')))
-                safebrowsing_db_path = config.get('safebrowsing', 'db_path')
-                lookup = Lookup(safebrowsing_db_path)
-                verdict = lookup.lookup_by_url(url)
-                if not verdict:
+                #config = ConfigParser.ConfigParser()
+                #config.readfp(open(os.path.expanduser('~/.boombot.cfg')))
+                #safebrowsing_db_path = config.get('safebrowsing', 'db_path')
+                #lookup = Lookup()
+                #verdict = lookup.lookup_by_url(url)
+                if not 0:
                     res = pydelicious.add(self.__dUser,self.__dPass,url,url,msg.nick,desc)
                 else:
                     uuu = url.replace("http", "hXXp")
                     if len(uuu) > 14: uuu = uuu[:9] + "..." + uuu[-5:]
                     else: uuu = uuu[:8] + "..."
                     irc.reply("MALICIOUS URL! Not saving %s to del.icio.us" % uuu)
-        except:
-            pass
+        except Exception, e:
+	    error = '%s' % (e)
+	    #irc.reply(error)
+	    pass
 
 Class = UrlLog
 

@@ -39,6 +39,7 @@ import supybot.ircmsgs as ircmsgs
 import supybot.plugins as plugins
 import supybot.ircutils as ircutils
 import supybot.callbacks as callbacks
+import sqlite3 as sqlite
 
 class QuoteGrabsRecord(dbi.Record):
     __fields__ = [
@@ -66,7 +67,7 @@ class SqliteQuoteGrabsDB(object):
             db.close()
 
     def _getDb(self, channel):
-        sqlite = plugins.importSqlite()
+        #sqlite = plugins.importSqlite()
         filename = plugins.makeChannelFilename(self.filename, channel)
         def p(s1, s2):
             return int(ircutils.nickEqual(s1.encode('iso8859-1'),
