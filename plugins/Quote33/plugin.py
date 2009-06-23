@@ -288,13 +288,9 @@ class QuoteGrabs(callbacks.Plugin):
 
 
     def _strip_addressed(self, s):
-        parts = s.split(">") # split on end of nick <blah>
-        if len(parts) < 2: return s
-        msgparts = parts[1].split(":")
-        if len(msgparts) > 1: #assume blah: exists
-            msgparts = "".join(msgparts[1:])
-            return "%s>%s" % (parts[0], msgparts)
-        else: return s
+        import re
+        # "<nick> nick2: msg" becomes "<nick> msg"
+        return re.sub(r'^(<[^>]+>\s*)\S+:\s*',r'\1',s)
 
 
     def _random_and_strip_addressed(self, channel,nick=None):
