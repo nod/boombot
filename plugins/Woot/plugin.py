@@ -7,6 +7,7 @@ import supybot.callbacks as callbacks
 import sys,time,random,string
 # from BeautifulSoupJK import BeautifulSoup
 from BeautifulSoup import BeautifulSoup
+from textutils import get_text
 import urllib2
 import re
 
@@ -23,9 +24,9 @@ class Woot(callbacks.Plugin):
 
     def __woot_reply(self, irc, soup):
             descr =soup.find('div',attrs={'class':'productDescription'})
-            prod = descr.find('h2')
-            price = descr.find('h3')
-            wootitem = "%s - %s" % (prod.contents[0], price.contents[0])
+            prod = get_text(descr.find('h2'))
+            price = get_text(descr.find('h3'))
+            wootitem = "%s - %s" % (prod, price)
             soldout = soup.find('a', attrs={'class':'soldOut'})
             if soldout:
                 wootitem += " (Sold Out!)"
