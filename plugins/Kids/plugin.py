@@ -98,7 +98,8 @@ class Kids(callbacks.Plugin):
         word= self._prepare_term(args[0],"-")
         if self._is_cve_number(word):
             irc.reply(self._cve(word))
-        irc.reply("Not a CVE number: " + word)
+        else:
+            irc.reply("Not a CVE number: " + word)
 
 Class = Kids
 
