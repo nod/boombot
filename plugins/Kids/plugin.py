@@ -43,7 +43,7 @@ class Kids(callbacks.Plugin):
         soup = BeautifulSoup()
         soup.feed(html)
         maintable = soup.fetch('li')
-        retdef = [] 
+        retdef = []
         checkfordefs = len(maintable)
         if checkfordefs != 0:
             for lines in maintable:
@@ -64,48 +64,41 @@ class Kids(callbacks.Plugin):
         result = "%s = %s"%(s, val.__str__(), )
         irc.reply(result)
 
+    def _is_cve_number(self,cve):
+        """
+        >>> _is_cve_number('CVE-2009-1234') and True
+        True
+        >>> _is_cve_number('can-2009-1234') and True
+        True
+        >>> _is_cve_number('2009-1234') and True
+        True
+        """
+        cve_re = re.compile(r'^(?:(?:can|cve)?\-?)\d{4}\-\d+$',re.IGNORECASE)
+        return cve_re.match(cve)
+
+    def _cve(cve):
+        """
+        return url and description for a cve entry
+        """
+        url = 'http://cve.mitre.org/cgi-bin/cvename.cgi?name=' + cve
+        html = urllib2.urlopen(url).read()
+        soup = BeautifulSoup(html)
+        err = soup.find('h2').contents[0]
+        if re.search(r'ERROR', err):
+            return "No data found regarding " + cve
+        div = soup.find('div',id='GeneratedTable')
+        if not div or not div.table:
+            return "Parse error searching for " + cve
+        desc = div.table.findAll('tr')[3].td.contents[0]
+        desc = ' '.join(desc.split())
+        ret = "%s %s" % (url, desc)
+        return ret.strip()
+
     def cve(self,irc,msg,args):
         word= self._prepare_term(args[0],"-")
-        if re.search('cve', word, re.IGNORECASE) == None:
-            url = 'http://cve.mitre.org/cgi-bin/cvekey.cgi?keyword=' + word
-            category = 'keyword'
-        else:
-            url = 'http://cve.mitre.org/cgi-bin/cvename.cgi?name=' +word
-            category = 'name'
-        # Read the URL and pass it to BeautifulSoup.
-        html = urllib2.urlopen(url).read()
-        soup = BeautifulSoup()
-        soup.feed(html)
-        cveroot = "http://cve.mitre.org"
-        # Read the main table, extracting the words from the table cells.
-        hreftable = soup.fetch('a', {'href':re.compile('cvename')}, limit=4)
-        h1table = soup.fetch('h1')
-        h1string = str(h1table)
-        if category == 'keyword':
-            fonttable = soup.fetch('font', limit=11)
-        else:
-            fonttable = soup.fetch('font', limit=17)
-        if (len(fonttable) == 3) or (re.search('error', h1string, re.IGNORECASE) != None):
-            irc.reply("No data found regarding " + word)
-        else:
-            cve = []
-            href = []
-            ret = ''
-            for line in fonttable:
-                string = str(line)
-                cve.append(re.sub('^.*">|</font>|\\n', '', string))
-            for line in hreftable:
-                string = str(line)
-                splitstring = string.split('>')
-                #print splitstring
-                href.append(re.sub('^.*="|"', '', splitstring[0]))
-            ret =  "%s %s" % (cve[3], cve[4])
-            if category == 'keyword':
-                for link in href:
-                    ret += cveroot + link + " "
-            else:
-                ret +=cve[8]
-            irc.reply(ret)
+        if self._is_cve_number(word):
+            irc.reply(self._cve(word))
+        irc.reply("Not a CVE number: " + word)
 
 Class = Kids
 
