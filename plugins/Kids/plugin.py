@@ -76,7 +76,7 @@ class Kids(callbacks.Plugin):
         cve_re = re.compile(r'^(?:(?:can|cve)?\-?)\d{4}\-\d+$',re.IGNORECASE)
         return cve_re.match(cve)
 
-    def _cve(cve):
+    def _cve(self,cve):
         """
         return url and description for a cve entry
         """
