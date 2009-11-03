@@ -1,8 +1,7 @@
 
 from supybot.commands import *
 import supybot.callbacks as callbacks
-# from BeautifulSoupJK import BeautifulSoup
-from BeautifulSoup import BeautifulSoup
+from webutil.BeautifulSoup import BeautifulSoup
 import urllib
 import urllib2
 import re

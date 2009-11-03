@@ -7,8 +7,7 @@ import supybot.plugins as plugins
 import supybot.ircutils as ircutils
 import supybot.callbacks as callbacks
 import sys,time,random,string
-# from BeautifulSoupJK import BeautifulSoup
-from BeautifulSoup import BeautifulSoup
+from webutil.BeautifulSoup import BeautifulSoup
 import urllib
 import urllib2
 import re

@@ -4,7 +4,7 @@
 # get text from BeautifulSoup
 #
 
-from BeautifulSoup import BeautifulSoup, Comment
+from webutil.BeautifulSoup import BeautifulSoup, Comment
 import re
 
 def filter_unicode(s):

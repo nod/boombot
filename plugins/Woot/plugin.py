@@ -5,9 +5,8 @@ import supybot.plugins as plugins
 import supybot.ircutils as ircutils
 import supybot.callbacks as callbacks
 import sys,time,random,string
-# from BeautifulSoupJK import BeautifulSoup
-from BeautifulSoup import BeautifulSoup
-from textutils import get_text
+from webutil.textutils import get_text
+from webutil.BeautifulSoup import BeautifulSoup
 import urllib2
 import re
 
@@ -125,6 +124,10 @@ class Woot(callbacks.Plugin):
             return soup
         except IOError:
             error = 'error fetching woot url'
+            irc.reply(error)
+            return False
+        except UnicodeDecodeError,e:
+            error = "UnicodeDecodeError: " + str(e)
             irc.reply(error)
             return False
 

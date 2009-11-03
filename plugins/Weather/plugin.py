@@ -30,7 +30,7 @@
 import re
 
 import rssparser
-import BeautifulSoup
+from webutil import BeautifulSoup
 
 import supybot.conf as conf
 import supybot.utils as utils
