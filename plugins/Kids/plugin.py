@@ -8,6 +8,7 @@ import supybot.ircutils as ircutils
 import supybot.callbacks as callbacks
 import sys,time,random,string
 from webutil.BeautifulSoup import BeautifulSoup
+from webutil.textutils import get_text
 import urllib
 import urllib2
 import re
@@ -99,6 +100,21 @@ class Kids(callbacks.Plugin):
             irc.reply(self._cve(word))
         else:
             irc.reply("Not a CVE number: " + word)
+
+    def url(self,irc,msg,args):
+        """<shorturl>
+        expand a shortened url (like tinyurl, bit.ly, etc)
+        """
+        usage = "usage: url <shorturl>"
+        if len(args) < 1:
+            irc.reply(usage)
+            return
+        url = urllib.quote_plus(args[0])
+        url = 'http://api.longurl.org/v2/expand?url=%s' % url
+        html = urllib2.urlopen(url).read()
+        soup = BeautifulSoup(html)
+        longurl = soup.find('long-url')
+        irc.reply(get_text(long_url))
 
 Class = Kids
 
