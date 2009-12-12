@@ -114,7 +114,7 @@ class Kids(callbacks.Plugin):
         html = urllib2.urlopen(url).read()
         soup = BeautifulSoup(html)
         longurl = soup.find('long-url')
-        irc.reply(get_text(long_url))
+        irc.reply(get_text(longurl))
 
 Class = Kids
 
