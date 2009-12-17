@@ -13,6 +13,19 @@ import urllib
 import urllib2
 import re
 
+def get_url_title(url):
+    title = None
+    html = urllib2.urlopen(url).read()
+    try:
+        soup = BeautifulSoup(html)
+        title = soup.find('title')
+    except:
+        # if BeatifulSoup cant parse the html, try a simple regex instead
+        title_re = re.compile(r'<title>(.*?)</title>',re.DOTALL|re.IGNORECASE)
+        m = title_re.search(html)
+        if m:
+            title = get_text(m.group(1))
+    return get_text(title)
 
 class Kids(callbacks.Plugin):
     """Some useful tools for Kids."""
@@ -105,16 +118,25 @@ class Kids(callbacks.Plugin):
         """<shorturl>
         expand a shortened url (like tinyurl, bit.ly, etc)
         """
-        usage = "usage: url <shorturl>"
+        usage = "usage: url <shorturl> [with_title]"
         if len(args) < 1:
             irc.reply(usage)
             return
         url = urllib.quote_plus(args[0])
         url = 'http://api.longurl.org/v2/expand?url=%s' % url
-        html = urllib2.urlopen(url).read()
-        soup = BeautifulSoup(html)
-        longurl = soup.find('long-url')
-        irc.reply(get_text(longurl))
+        try:
+            html = urllib2.urlopen(url).read()
+            soup = BeautifulSoup(html)
+            longurl = soup.find('long-url')
+        except:
+            irc.reply("error looking up %s" % args[0])
+            return
+        longurl = get_text(longurl)
+        if len(args) > 1:
+            title = get_url_title(longurl)
+            if title:
+                title = " <-- %s" % get_text(title)
+        irc.reply("%s%s" % (longurl, title))
 
 Class = Kids
 
