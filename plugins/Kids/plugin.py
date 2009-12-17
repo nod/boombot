@@ -132,6 +132,7 @@ class Kids(callbacks.Plugin):
             irc.reply("error looking up %s" % args[0])
             return
         longurl = get_text(longurl)
+        title = ""
         if len(args) > 1:
             title = get_url_title(longurl)
             if title:
