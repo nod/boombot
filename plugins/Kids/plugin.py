@@ -156,21 +156,21 @@ class Kids(callbacks.Plugin):
         except:
             irc.reply("error looking up %s" % symbol)
             return
-        time = soup.find('span',id='yfs_t50_%s'%symbol)
+        time = soup.find('span',id='yfs_t50_%s'%symbol.lower())
         if not time:
-                time = soup.find('span',id='yfs_t10_%s'%symbol)
+                time = soup.find('span',id='yfs_t10_%s'%symbol.lower())
         time = time and get_text(time) or ""
-        price = soup.find('span',id='yfs_l90_%s'%symbol)
+        price = soup.find('span',id='yfs_l90_%s'%symbol.lower())
         if not price:
-                price = soup.find('span',id='yfs_l10_%s'%symbol)
+                price = soup.find('span',id='yfs_l10_%s'%symbol.lower())
         price = price and get_text(price) or ""
-        change = soup.find('span',id='yfs_c60_%s'%symbol)
+        change = soup.find('span',id='yfs_c60_%s'%symbol.lower())
         if not change:
-                change = soup.find('span',id='yfs_c10_%s'%symbol)
+                change = soup.find('span',id='yfs_c10_%s'%symbol.lower())
         change = change and get_text(change) or ""
-        pctchg = soup.find('span',id='yfs_p40_%s'%symbol)
+        pctchg = soup.find('span',id='yfs_p40_%s'%symbol.lower())
         if not pctchg:
-                pctchg = soup.find('span',id='yfs_pp0_%s'%symbol)
+                pctchg = soup.find('span',id='yfs_pp0_%s'%symbol.lower())
         pctchg = pctchg and get_text(pctchg) or ""
         if not price:
             irc.reply("error looking up %s" % symbol)
