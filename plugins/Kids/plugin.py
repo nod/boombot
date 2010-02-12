@@ -139,6 +139,45 @@ class Kids(callbacks.Plugin):
                 title = " <-- %s" % get_text(title)
         irc.reply("%s%s" % (longurl, title))
 
+    def rtsq(self, irc, msg, args):
+        """<company symbol>
+
+        Gets the real time stock quote for the given symbol.
+        """
+        if len(args) < 1:
+            irc.reply(usage)
+            return
+        symbol = args[0]
+        url = urllib.quote_plus(symbol)
+        url = 'http://finance.yahoo.com/q?s=%s' % url
+        try:
+            html = urllib2.urlopen(url).read()
+            soup = BeautifulSoup(html)
+        except:
+            irc.reply("error looking up %s" % symbol)
+            return
+        time = soup.find('span',id='yfs_t50_%s'%symbol)
+        if not time:
+                time = soup.find('span',id='yfs_t10_%s'%symbol)
+        time = time and get_text(time) or ""
+        price = soup.find('span',id='yfs_l90_%s'%symbol)
+        if not price:
+                price = soup.find('span',id='yfs_l10_%s'%symbol)
+        price = price and get_text(price) or ""
+        change = soup.find('span',id='yfs_c60_%s'%symbol)
+        if not change:
+                change = soup.find('span',id='yfs_c10_%s'%symbol)
+        change = change and get_text(change) or ""
+        pctchg = soup.find('span',id='yfs_p40_%s'%symbol)
+        if not pctchg:
+                pctchg = soup.find('span',id='yfs_pp0_%s'%symbol)
+        pctchg = pctchg and get_text(pctchg) or ""
+        if not price:
+            irc.reply("error looking up %s" % symbol)
+        else:
+            irc.reply("%s: %s as of %s. A change of %s %s." % (symbol, price, time, change, pctchg))
+
+
 Class = Kids
 
 
