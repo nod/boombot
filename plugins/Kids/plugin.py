@@ -13,6 +13,12 @@ import urllib
 import urllib2
 import re
 
+def _get_lotto_numbers(soup,drawing='lotto'):
+    m = re.match(r'(lotto|mega)',drawing,re.IGNORECASE)
+    if m:
+        drawing = m.group(1).capitalize()
+    return " ".join(map(get_text, soup.findAll('td','NewLatestResults%s'%drawing)))
+
 def get_url_title(url):
     title = None
     html = urllib2.urlopen(url).read()
@@ -138,6 +144,24 @@ class Kids(callbacks.Plugin):
             if title:
                 title = " <-- %s" % get_text(title)
         irc.reply("%s%s" % (longurl, title))
+
+    def lotto(self, irc, msg, args):
+        """[lotto|mega]
+
+        Gets winning numbers for the most recent Texas Lotto drawing
+        """
+        if len(args):
+            drawing = args[0]
+        else:
+            drawing = "lotto"
+        try:
+            html = urllib2.urlopen("http://www.txlottery.org/export/sites/default/index.html").read()
+            html = re.sub(r'</</p>','</p>',html) # fix bad html
+            soup = BeautifulSoup(html)
+        except:
+            irc.reply("error looking up lotto")
+            return
+        irc.reply(_get_lotto_numbers(soup, drawing))
 
     def rtsq(self, irc, msg, args):
         """<company symbol>
