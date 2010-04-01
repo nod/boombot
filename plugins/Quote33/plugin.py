@@ -49,7 +49,7 @@ class QuoteGrabsRecord(dbi.Record):
         'at',
         'hostmask',
         ]
-
+    
     def __str__(self):
         at = time.strftime(conf.supybot.reply.format.time(),
                            time.localtime(float(self.at)))
@@ -72,6 +72,10 @@ class SqliteQuoteGrabsDB(object):
         def p(s1, s2):
             return int(ircutils.nickEqual(s1.encode('iso8859-1'),
                                           s2.encode('iso8859-1')))
+      
+        # norf 4-1-2010
+        #ALTER TABLE quotegrabs ADD votes INTEGER DEFAULT 0;
+        
         if filename in self.dbs:
             self.dbs[filename].create_function('nickeq', 2, p)
             return self.dbs[filename]
@@ -89,7 +93,8 @@ class SqliteQuoteGrabsDB(object):
                           hostmask TEXT,
                           added_by TEXT,
                           added_at TIMESTAMP,
-                          quote TEXT
+                          quote TEXT, 
+                          vote INTEGER DEFAULT 0
                           );""")
         db.commit()
         return db
@@ -111,15 +116,17 @@ class SqliteQuoteGrabsDB(object):
         db = self._getDb(channel)
         cursor = db.cursor()
         if nick:
-            cursor.execute("""SELECT quote FROM quotegrabs
+            cursor.execute("""SELECT id, quote, votes FROM quotegrabs
                               WHERE nickeq(nick, ?)
+                              AND votes >= 0
                               ORDER BY random() LIMIT 1""", (nick,))
         else:
-            cursor.execute("""SELECT quote FROM quotegrabs
+            cursor.execute("""SELECT id, quote, votes FROM quotegrabs
+                              WHERE votes >= 0
                               ORDER BY random() LIMIT 1""")
         quote = cursor.fetchone()
         if quote:
-            return quote[0]
+            return "%s (%d:%d)" % (quote[1], quote[0], quote[2])
         else:
             raise dbi.NoRecordError
 
@@ -135,12 +142,12 @@ class SqliteQuoteGrabsDB(object):
     def getQuote(self, channel, nick):
         db = self._getDb(channel)
         cursor = db.cursor()
-        cursor.execute("""SELECT quote FROM quotegrabs
+        cursor.execute("""SELECT id, quote, votes FROM quotegrabs
                           WHERE nickeq(nick, ?)
                           ORDER BY id DESC LIMIT 1""", (nick,))
         quote = cursor.fetchone()
         if quote:
-            return quote[0]
+            return "%s (%d:%d)" % (quote[1], quote[0], quote[2])
         else:
             raise dbi.NoRecordError
 
@@ -155,6 +162,15 @@ class SqliteQuoteGrabsDB(object):
             return addedTime[0]
         else:
             raise dbi.NoRecordError
+
+    def updateVote(self, channel, id, vote):
+        db = self._getDb(channel)
+        cursor = db.cursor()
+        query = """UPDATE quotegrabs
+                   SET votes = votes + %d
+                   WHERE id = %s""" % (vote, id)
+        cursor.execute(query)
+        db.commit()
 
     def add(self, msg, by):
         channel = msg.args[0]
@@ -373,6 +389,23 @@ class QuoteGrabs(callbacks.Plugin):
             irc.error('No quotegrabs matching %s' % utils.str.quoted(text),
                        Raise=True)
     search = wrap(search, ['channeldb', 'text'])
+
+    def vote(self, irc, msg, args, channel, text):
+        """[<channel>] <id>(++|--)
+        """
+        import re
+        vote_re = re.compile("(\d+)(--|\+\+)")
+        if not vote_re.match(text):
+            irc.reply("vote syntax: <id>[++|--]");
+            return
+        vid, vorder = vote_re.match(text).groups()
+        vorder = 1 if '+' in vorder else -1
+        try:
+            self.db.updateVote(channel, vid, vorder)
+            irc.reply('vote recorded')
+        except Exception, e:
+            irc.reply('error updating vote - %s' % (e))
+    vote = wrap(vote, ['channeldb', 'text'])
 
 Class = QuoteGrabs
 
