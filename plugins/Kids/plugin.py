@@ -134,8 +134,8 @@ class Kids(callbacks.Plugin):
             html = urllib2.urlopen(url).read()
             soup = BeautifulSoup(html)
             longurl = soup.find('long-url')
-        except:
-            irc.reply("error looking up %s" % args[0])
+        except Exception, e:
+            irc.reply("%s: error looking up %s" % (e, args[0]))
             return
         longurl = get_text(longurl)
         title = ""
