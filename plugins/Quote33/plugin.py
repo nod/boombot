@@ -119,11 +119,11 @@ class SqliteQuoteGrabsDB(object):
             cursor.execute("""SELECT id, quote, votes FROM quotegrabs
                               WHERE nickeq(nick, ?)
                               AND votes >= 0
-                              ORDER BY (random()%15+votes) DESC LIMIT 1""", (nick,))
+                              ORDER BY (random()%20+votes) DESC LIMIT 1""", (nick,))
         else:
             cursor.execute("""SELECT id, quote, votes FROM quotegrabs
                               WHERE votes >= 0
-                              ORDER BY (random()%15+votes) DESC LIMIT 1""")
+                              ORDER BY (random()%20+votes) DESC LIMIT 1""")
         quote = cursor.fetchone()
         if quote:
             return "%s (%d:%d)" % (quote[1], quote[0], quote[2])
