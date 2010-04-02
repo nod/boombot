@@ -12,12 +12,36 @@ from webutil.textutils import get_text
 import urllib
 import urllib2
 import re
+import simplejson as json
 
 def _get_lotto_numbers(soup,drawing='lotto'):
     m = re.match(r'(lotto|mega)',drawing,re.IGNORECASE)
     if m:
         drawing = m.group(1).capitalize()
     return " ".join(map(get_text, soup.findAll('td','NewLatestResults%s'%drawing)))
+
+def _longurl_org(shorturl):
+    url = urllib.quote_plus(args[0])
+    url = 'http://api.longurl.org/v2/expand?url=%s' % url
+    html = urllib2.urlopen(url).read()
+    soup = BeautifulSoup(html)
+    longurl = soup.find('long-url')
+    return get_text(longurl)
+
+def _longurlplease(shorturl):
+    url = urllib.quote(shorturl)
+    url = 'http://www.longurlplease.com/api/v1.1?q=%s' % shorturl
+    html = urllib2.urlopen(url).read()
+    longurl = json.loads(html)
+    longurl = longurl.get(shorturl)
+    if longurl:
+        return longurl
+    else:
+        return shorturl
+
+def longurl(shorturl):
+    #return _longurl_org(shorturl)
+    return _longurlplease(shorturl)
 
 def get_url_title(url):
     title = None
@@ -128,22 +152,17 @@ class Kids(callbacks.Plugin):
         if len(args) < 1:
             irc.reply(usage)
             return
-        url = urllib.quote_plus(args[0])
-        url = 'http://api.longurl.org/v2/expand?url=%s' % url
         try:
-            html = urllib2.urlopen(url).read()
-            soup = BeautifulSoup(html)
-            longurl = soup.find('long-url')
+            expanded_url = longurl(args[0])
         except Exception, e:
             irc.reply("%s: error looking up %s" % (e, args[0]))
             return
-        longurl = get_text(longurl)
         title = ""
         if len(args) > 1:
-            title = get_url_title(longurl)
+            title = get_url_title(expanded_url)
             if title:
                 title = " <-- %s" % get_text(title)
-        irc.reply("%s%s" % (longurl, title))
+        irc.reply("%s%s" % (expanded_url, title))
 
     def lotto(self, irc, msg, args):
         """[lotto|mega]
