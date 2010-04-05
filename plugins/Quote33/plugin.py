@@ -185,7 +185,7 @@ class SqliteQuoteGrabsDB(object):
         if quote and text == quote[0]:
             return
         cursor.execute("""INSERT INTO quotegrabs
-                          VALUES (NULL, ?, ?, ?, ?, ?)""",
+                          VALUES (NULL, ?, ?, ?, ?, ?, 0)""",
                        (msg.nick, msg.prefix, by, int(time.time()), text))
         db.commit()
 
