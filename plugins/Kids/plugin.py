@@ -8,7 +8,7 @@ import supybot.ircutils as ircutils
 import supybot.callbacks as callbacks
 import sys,time,random,string
 from BeautifulSoup import BeautifulSoup
-from webutil.textutils import get_text
+from webutil.textutils import get_text,remove_params
 import urllib
 import urllib2
 import re
@@ -40,8 +40,10 @@ def _longurlplease(shorturl):
         return shorturl
 
 def longurl(shorturl):
-    #return _longurl_org(shorturl)
-    return _longurlplease(shorturl)
+    unwanted_url_parameters = ('utm_source','utm_medium','utm_campaign')
+    #longurl = _longurl_org(shorturl)
+    longurl = _longurlplease(shorturl)
+    return remove_params(longurl,remove=unwanted_url_parameters)
 
 def get_url_title(url):
     title = None

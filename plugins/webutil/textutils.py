@@ -6,6 +6,29 @@
 
 from BeautifulSoup import BeautifulSoup, Comment
 import re
+import urllib,urlparse,cgi
+
+def remove_params(url=None,remove=None,keep_only=None):
+    """
+    remove parameters from a url
+      remove    : tuple of parameters to remove, keep any others
+                : or "ALL" to remove all parameters
+      keep_only : keep only this tuple of parameters, remove all others
+    parameter order is not kept which may cause problems with uncache().
+    >>> remove_params('http://example.com/page.php?rs=644&x=y&z=zz&uid=1234&loc=en_US&lang=en',keep_only=('rs','uid'))
+    'http://example.com/page.php?uid=1234&rs=644'
+    >>> remove_params('http://example.com/page.php?rs=644&x=y&z=zz&uid=1234&loc=en_US&lang=en',remove=('rs','uid'))
+    'http://example.com/page.php?lang=en&loc=en_US&x=y&z=zz'
+    """
+    if remove and keep_only:
+        raise TypeError('remove_params: use either remove OR keep_only argument')
+    s = urlparse.urlsplit(url)
+    params = dict(cgi.parse_qsl(s.query))
+    for k in params.keys():
+        if remove == "ALL" or (remove and k in remove) or (keep_only and not k in keep_only):
+            del params[k]
+    q = urllib.urlencode(params)
+    return urlparse.urlunsplit((s.scheme,s.netloc,s.path,q,s.fragment))
 
 def filter_unicode(s):
     import unicodedata
