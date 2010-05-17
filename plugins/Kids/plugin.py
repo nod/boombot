@@ -47,7 +47,9 @@ def longurl(shorturl):
 
 def get_url_title(url):
     title = None
-    html = urllib2.urlopen(url).read()
+    u = urllib2.urlopen(url)
+    html = u.read()
+    content_type = u.headers.get('Content-Type')
     try:
         soup = BeautifulSoup(html)
         title = soup.find('title')
@@ -57,7 +59,11 @@ def get_url_title(url):
         m = title_re.search(html)
         if m:
             title = get_text(m.group(1))
-    return get_text(title)
+    if title:
+        title = "%s (%s)" % (get_text(title), content_type)
+    else:
+        title = "(%s)" % content_type
+    return title
 
 class Kids(callbacks.Plugin):
     """Some useful tools for Kids."""
