@@ -190,11 +190,39 @@ class Kids(callbacks.Plugin):
             return
         irc.reply(_get_lotto_numbers(soup, drawing))
 
-    def rtsq(self, irc, msg, args):
+    def company(self, irc, msg, args):
         """<company symbol>
+
+        Look up company name for the given stock symbol.
+        """
+        usage = "usage: company <symbol>"
+        if len(args) < 1:
+            irc.reply(usage)
+        symbol = args[0]
+        url = urllib.quote_plus(symbol)
+        url = 'http://finance.yahoo.com/q?s=%s' % url
+        try:
+            html = urllib2.urlopen(url).read()
+            soup = BeautifulSoup(html)
+        except:
+            irc.reply("error looking up %s" % symbol)
+            return
+        div = soup.find('div','yfi_quote_summary')
+        if not div:
+            irc.reply("error looking up %s" % symbol)
+            return
+        name = div.find('div','hd')
+        if not name:
+            irc.reply("error looking up %s" % symbol)
+            return
+        irc.reply("%s: %s" % (symbol, get_text(name)))
+
+    def rtsq(self, irc, msg, args):
+        """<company symbol> [show_company_name]
 
         Gets the real time stock quote for the given symbol.
         """
+        usage = "usage: rtsq <symbol>"
         if len(args) < 1:
             irc.reply(usage)
             return
