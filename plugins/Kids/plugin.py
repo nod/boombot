@@ -262,10 +262,13 @@ class Kids(callbacks.Plugin):
         afterhours = soup.find('span',id='yfs_l91_%s'%symbol) or ""
         if afterhours:
             afterhours = afterhours and get_text(afterhours) or ""
-            ah_pctchg = soup.find('span',id='yfs_z08_%s'%symbol)
+            ah_change = soup.find('span',id='yfs_z08_%s'%symbol)
+            if ah_change:
+                ah_change = ah_change and get_text(ah_change) or ""
+            ah_pctchg = soup.find('span',id='yfs_z09_%s'%symbol)
             if ah_pctchg:
                 ah_pctchg = ah_pctchg and get_text(ah_pctchg) or ""
-            afterhours = " Afterhours: %s (%s)." % (afterhours, ah_pctchg)
+            afterhours = " Afterhours: %s change from close: %s %s." % (afterhours, ah_change, ah_pctchg)
         if not price:
             irc.reply("error looking up %s" % symbol)
         else:
