@@ -216,17 +216,32 @@ class Kids(callbacks.Plugin):
                 price = soup.find('span',id='yfs_l10_%s'%symbol.lower())
         price = price and get_text(price) or ""
         change = soup.find('span',id='yfs_c60_%s'%symbol.lower())
+        sign=""
         if not change:
                 change = soup.find('span',id='yfs_c10_%s'%symbol.lower())
-        change = change and get_text(change) or ""
+                direction = change.find('b',{'class':True})
+                if direction:
+                    if re.search(r'down',direction['class']):
+                        sign = "-"
+        change = "%s%s" % (sign, change and get_text(change) or "")
         pctchg = soup.find('span',id='yfs_p40_%s'%symbol.lower())
         if not pctchg:
-                pctchg = soup.find('span',id='yfs_pp0_%s'%symbol.lower())
+                pctchg = soup.find('span',id=re.compile(r'yfs_(?:pp0|p20)_%s'%symbol.lower()))
         pctchg = pctchg and get_text(pctchg) or ""
+        if pctchg:
+            pctchg = re.sub(r'[\(\)]',r'',pctchg)
+            pctchg = "(%s%s)" % (sign, pctchg)
+        afterhours = soup.find('span',id='yfs_l91_%s'%symbol) or ""
+        if afterhours:
+            afterhours = afterhours and get_text(afterhours) or ""
+            ah_pctchg = soup.find('span',id='yfs_z08_%s'%symbol)
+            if ah_pctchg:
+                ah_pctchg = ah_pctchg and get_text(ah_pctchg) or ""
+            afterhours = " Afterhours: %s (%s)." % (afterhours, ah_pctchg)
         if not price:
             irc.reply("error looking up %s" % symbol)
         else:
-            irc.reply("%s: %s as of %s. A change of %s %s." % (symbol, price, time, change, pctchg))
+            irc.reply("%s: %s as of %s. A change of %s %s.%s" % (symbol, price, time, change, pctchg, afterhours))
 
 
 Class = Kids
