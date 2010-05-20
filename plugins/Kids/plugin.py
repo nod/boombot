@@ -218,7 +218,7 @@ class Kids(callbacks.Plugin):
         irc.reply("%s: %s" % (symbol, get_text(name)))
 
     def rtsq(self, irc, msg, args):
-        """<company symbol> [show_company_name]
+        """<company symbol>
 
         Gets the real time stock quote for the given symbol.
         """
