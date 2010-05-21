@@ -247,10 +247,11 @@ class Kids(callbacks.Plugin):
         sign=""
         if not change:
                 change = soup.find('span',id='yfs_c10_%s'%symbol.lower())
-                direction = change.find('b',{'class':True})
-                if direction:
-                    if re.search(r'down',direction['class']):
-                        sign = "-"
+                if change:
+                    direction = change.find('b',{'class':True})
+                    if direction:
+                        if re.search(r'down',direction['class']):
+                            sign = "-"
         change = "%s%s" % (sign, change and get_text(change) or "")
         pctchg = soup.find('span',id='yfs_p40_%s'%symbol.lower())
         if not pctchg:
