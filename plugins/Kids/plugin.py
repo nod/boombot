@@ -157,7 +157,7 @@ class Kids(callbacks.Plugin):
         """
         flip a coin
         """
-        irc.reply( "heads" if random.randint(1,100)%2 else "tails" )
+        irc.reply( "heads" if random.randint(0,1) else "tails" )
 
 
     def roll(self,irc,msg,args):
