@@ -153,6 +153,13 @@ class Kids(callbacks.Plugin):
             irc.reply("Not a CVE number: " + word)
 
 
+    def coin(self,irc,msg,args):
+        """
+        flip a coin
+        """
+        irc.reply( "heads" if random.randint(1,100)%2 else "tails" )
+
+
     def roll(self,irc,msg,args):
         """<ndm> [<ndm> ...]
         roll n dice with m sides.
