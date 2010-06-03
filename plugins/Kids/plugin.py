@@ -155,7 +155,7 @@ class Kids(callbacks.Plugin):
 
     def roll(self,irc,msg,args):
         """<ndm> [<ndm> ...]
-        roll n dice with m sides.  
+        roll n dice with m sides.
         for instance: "roll 3d6" would roll 3 6-sided dice
         """
         if len(args) < 1:
@@ -163,7 +163,8 @@ class Kids(callbacks.Plugin):
             return
         repstr = ""
         for d in args:
-            try:            n,m = [int(i) for i in d.split('d')]
+            try:
+                n,m = [int(i) for i in d.split('d')]
                 results = []
                 counter = 0
                 while counter < n:
