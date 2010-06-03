@@ -1,11 +1,17 @@
 These are just some customized supybot modules that are in use for a supybot
 instance on a private irc server. 
 
-The code is UGLY, but functional.   Keep in mind, it's been written by several 
-different people at different times as a hack to get plugins working in aprivate 
-IRC channel.  Patches gleefully accepted.  :)
+The code is UGLY, but functional.   Keep in mind, it's been written by several
+different people at different times as a hack to get plugins working in
+a private IRC channel.  
 
-Most of these custom modules use ~/.boombot.cfg for module specific configuration.  
-In particular, Goog and UrlLog are known to read criticalvalues there.  Others may 
-also.  This README isn't guaranteed to be up to date.Someday, these may be moved 
-into the supybot config file, but they work quite well this way.
+Patches gleefully accepted.  :)
+
+Most of these custom modules use ~/.boombot.cfg for module specific
+configuration.  In particular, Goog and UrlLog are known to read critical
+values there.  Others may also.  
+
+This README isn't guaranteed to be up to date.
+
+Someday, these may be moved into the supybot config file, but they work
+quite well this way.
