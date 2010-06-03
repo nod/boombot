@@ -152,6 +152,35 @@ class Kids(callbacks.Plugin):
         else:
             irc.reply("Not a CVE number: " + word)
 
+
+    def roll(self,irc,msg,args):
+        """<ndm> [<ndm> ...]
+        roll n dice with m sides.  
+        for instance: "roll 3d6" would roll 3 6-sided dice
+        """
+        if len(args) < 1:
+            irc.reply(self.roll.__doc__)
+            return
+        repstr = ""
+        for d in args:
+            try:            n,m = [int(i) for i in d.split('d')]
+                results = []
+                counter = 0
+                while counter < n:
+                    results.append( random.randint(1,m) )
+                    counter += 1
+                repstr += "%s(%s) " % (
+                    d,
+                    ",".join( str(i) for i in results )
+                    )
+            except:
+                irc.reply(
+                    "Bogus dice description: '%s'. Must look like 3d2" % d
+                    )
+                return
+        irc.reply(repstr)
+
+
     def url(self,irc,msg,args):
         """<shorturl>
         expand a shortened url (like tinyurl, bit.ly, etc)
