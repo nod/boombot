@@ -248,7 +248,7 @@ class Kids(callbacks.Plugin):
         if not div:
             irc.reply("error looking up %s" % symbol)
             return
-        name = div.find('div','hd')
+        name = div.find('div','title')
         if not name:
             irc.reply("error looking up %s" % symbol)
             return
