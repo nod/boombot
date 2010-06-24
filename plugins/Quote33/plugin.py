@@ -328,6 +328,8 @@ class QuoteGrabs(callbacks.Plugin):
             return irc.reply("too many, jerk")
         import re
         nick_re = re.compile("^\*(\d+)$")
+        # allow old style syntax:  *2,nick
+        args = [ x for arg in args for x in arg.split(',') ]
         for nick in args:
             try:
                 found = nick_re.match(nick)
