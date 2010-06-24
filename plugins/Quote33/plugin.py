@@ -49,7 +49,7 @@ class QuoteGrabsRecord(dbi.Record):
         'at',
         'hostmask',
         ]
-    
+
     def __str__(self):
         at = time.strftime(conf.supybot.reply.format.time(),
                            time.localtime(float(self.at)))
@@ -319,9 +319,9 @@ class QuoteGrabs(callbacks.Plugin):
     def random(self, irc, msg, args):
         """<nick|*n> <*n|nick> ...
 
-        Returns a randomly grabbed quote, optionally choosing only from those
-        quotes grabbed for <nick>.  if *n is used, it will randomly retrieve n
-        quotes.  Separate nicks and *n by spaces.
+        Returns a randomly grabbed quote, or if nick is specified the last
+        grabbed quote for that nick.  if *n is used, it will randomly retrieve
+        n quotes.  Separate nicks and *n by spaces.
         """
         channel = msg.args[0]
         if len(args) > 4):
@@ -332,7 +332,7 @@ class QuoteGrabs(callbacks.Plugin):
             try:
                 found = nick_re.match(nick)
                 if not found:
-                    irc.reply(self.db.random(channel, nick))
+                    irc.reply(self.db.getQuote(channel, nick))
                 else:
                     n = int(found.groups()[0])
                     if n > 3:
@@ -341,14 +341,12 @@ class QuoteGrabs(callbacks.Plugin):
                     while n >= 1:
                         irc.reply( self._random_and_strip_addressed(channel) )
                         n -= 1
-                    return
             except dbi.NoRecordError:
                 if nick:
                     irc.error('Couldn\'t get a random quote for that nick.')
                 else:
                     irc.error('Couldn\'t get a random quote.  Are there any '
                         'grabbed quotes in the database?')
-    # random = wrap(random, ['channeldb', additional('nick')])
 
     def get(self, irc, msg, args, channel, id):
         """[<channel>] <id>
