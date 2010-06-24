@@ -324,7 +324,7 @@ class QuoteGrabs(callbacks.Plugin):
         n quotes.  Separate nicks and *n by spaces.
         """
         channel = msg.args[0]
-        if len(args) > 4):
+        if len(args) > 4:
             return irc.reply("too many, jerk")
         import re
         nick_re = re.compile("^\*(\d+)$")
