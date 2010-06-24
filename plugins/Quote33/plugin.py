@@ -113,6 +113,8 @@ class SqliteQuoteGrabsDB(object):
             raise dbi.NoRecordError
 
     def random(self, channel, nick):
+    # def define(self,irc,msg,args):
+
         db = self._getDb(channel)
         cursor = db.cursor()
         if nick:
@@ -314,48 +316,39 @@ class QuoteGrabs(callbacks.Plugin):
         qq = self.db.random(channel, nick)
         return self._strip_addressed(qq)
 
-    def random(self, irc, msg, args, channel, nick):
-        """[<channel>] [<nick>]
+    def random(self, irc, msg, args):
+        """<nick|*n> <*n|nick> ...
 
         Returns a randomly grabbed quote, optionally choosing only from those
-        quotes grabbed for <nick>.  <channel> is only necessary if the message
-        isn't sent in the channel itself.
+        quotes grabbed for <nick>.  if *n is used, it will randomly retrieve n
+        quotes.  Separate nicks and *n by spaces.
         """
-        try:
-            # begin patch : 09-23-08
-            # added by norf
-            if nick:
-                import re
-                a_re = re.compile("\*\s?\s?(\d+),?(.*)$")
-                if a_re.match(nick):
-                    matches = a_re.match(nick).groups()
-                    n = int(matches[0])
+        channel = msg.args[0]
+        if len(args) > 4):
+            return irc.reply("too many, jerk")
+        import re
+        nick_re = re.compile("^\*(\d+)$")
+        for nick in args:
+            try:
+                found = nick_re.match(nick)
+                if not found:
+                    irc.reply(self.db.random(channel, nick))
+                else:
+                    n = int(found.groups()[0])
                     if n > 3:
-                        irc.reply("limited to 3, buddy.")
+                        irc.reply("NO SOUP FOR YOU (limited to 3)")
                         return
                     while n >= 1:
-                        randreply = self._random_and_strip_addressed(channel)
-                        irc.reply(randreply)
+                        irc.reply( self._random_and_strip_addressed(channel) )
                         n -= 1
-                    if len(matches) > 1:
-                        niks = a_re.match(nick).groups()[1]
-                        for n in niks.split(','):
-                            n = n.strip()
-                            if n:
-                                irc.reply(self._strip_addressed(self.db.getQuote(channel, n)))
                     return
+            except dbi.NoRecordError:
+                if nick:
+                    irc.error('Couldn\'t get a random quote for that nick.')
                 else:
-                    irc.reply(self.db.random(channel, nick))
-                    return
-                # end patch
-            irc.reply(self.db.random(channel, nick))
-        except dbi.NoRecordError:
-            if nick:
-                irc.error('Couldn\'t get a random quote for that nick.')
-            else:
-                irc.error('Couldn\'t get a random quote.  Are there any '
-                          'grabbed quotes in the database?')
-    random = wrap(random, ['channeldb', additional('nick')])
+                    irc.error('Couldn\'t get a random quote.  Are there any '
+                        'grabbed quotes in the database?')
+    # random = wrap(random, ['channeldb', additional('nick')])
 
     def get(self, irc, msg, args, channel, id):
         """[<channel>] <id>
