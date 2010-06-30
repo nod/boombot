@@ -329,7 +329,7 @@ class QuoteGrabs(callbacks.Plugin):
         import re
         nick_re = re.compile("^\*(\d+)$")
         # allow old style syntax:  *2,nick
-        args = [ x for arg in args for x in arg.split(',') ]
+        args = [ x for arg in args for x in arg.split(',') if x ]
         for nick in args:
             try:
                 found = nick_re.match(nick)
