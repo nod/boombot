@@ -297,13 +297,13 @@ class Kids(callbacks.Plugin):
         if pctchg:
             pctchg = re.sub(r'[\(\)]',r'',pctchg)
             pctchg = "(%s%s)" % (sign, pctchg)
-        afterhours = soup.find('span',id='yfs_l91_%s'%symbol) or ""
+        afterhours = soup.find('span',id='yfs_l91_%s'%symbol.lower()) or ""
         if afterhours:
             afterhours = afterhours and get_text(afterhours) or ""
-            ah_change = soup.find('span',id='yfs_z08_%s'%symbol)
+            ah_change = soup.find('span',id='yfs_z08_%s'%symbol.lower())
             if ah_change:
                 ah_change = ah_change and get_text(ah_change) or ""
-            ah_pctchg = soup.find('span',id='yfs_z09_%s'%symbol)
+            ah_pctchg = soup.find('span',id='yfs_z09_%s'%symbol.lower())
             if ah_pctchg:
                 ah_pctchg = ah_pctchg and get_text(ah_pctchg) or ""
             afterhours = " Afterhours: %s change from close: %s %s." % (afterhours, ah_change, ah_pctchg)
