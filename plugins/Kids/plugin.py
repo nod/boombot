@@ -20,6 +20,48 @@ def _get_lotto_numbers(soup,drawing='lotto'):
         drawing = m.group(1).capitalize()
     return " ".join(map(get_text, soup.findAll('td','NewLatestResults%s'%drawing)))
 
+def _youre_awesome():
+    awesomeness = (
+        "You are a Superhero.  Here's your cape.",
+        "If you're sad, you stop being sad and are awesome again",
+        "You are totally full-on complete double rainbow all the way across the sky!",
+        # http://hubpages.com/hub/25-reasons-I-think-you-are-AWESOME
+        "You are so damn good lookin'",
+        "You have a great smile",
+        "I love your laugh",
+        "Those funny little things you do",
+        "The way you dress",
+        "Your positivity",
+        "You're a 'good finder'",
+        "You've got integrity",
+        "You genuinely care about others",
+        "You have a servant's heart",
+        "You can be trusted",
+        "You want to make a difference",
+        "You're always improving",
+        "You're NOT perfect",
+        "You're the BEST at being YOU",
+        # http://olegmokhov.com/2009/12/28/youre-awesome/
+        "You're like LEGOs",
+        "You're like the sun",
+        "You're like a puppy",
+        # http://www.inspiration4everyone.com/chris_sandy/sandy_pages/100_reasons_why_i_love_you.html
+        "You aren't afraid to cry",
+        "You have vast knowledge about everything",
+        "You are always good at everything",
+        "You bring excitement into my life everyday",
+        "You're not afraid to be a risk-taker",
+        "Your incredible dreams and visions for the future will come true",
+        # http://treerootandtwig.com/2010/08/02/top-ten-tuesday-10-reasons-awesome/
+        "You woke up this morning",
+        "You've laughed at yourself.  And enjoyed it.",
+        "You want to do better, to improve, to be more",
+        "You've been an example to others",
+        "You've done with less to help fill up someone else",
+        )
+    return "You are AWESOME because...   %s" % awesomeness[random.randint(0,len(awesomeness)-1)]
+
+
 def _longurl_org(shorturl):
     url = urllib.quote_plus(args[0])
     url = 'http://api.longurl.org/v2/expand?url=%s' % url
@@ -104,6 +146,12 @@ class Kids(callbacks.Plugin):
         else:
             retdef.append("not found.  Is %s spelled corectly?" % word)
         irc.reply(word + ": " + "; ".join(retdef))
+
+    def awesome(self,irc,msg,args):
+        """
+        you dont need help being awesome
+        """
+        irc.reply(_youre_awesome())
 
     def calc(self,irc,msg,args):
         """
