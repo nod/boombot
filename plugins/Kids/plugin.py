@@ -26,6 +26,7 @@ def _youre_awesome():
         "If you're sad, you stop being sad and are awesome again",
         "You are totally full-on complete double rainbow all the way across the sky!",
         "Your hat. Is. AWESOME!",
+        "http://bit.ly/9xyr2y",
         # http://hubpages.com/hub/25-reasons-I-think-you-are-AWESOME
         "You are so damn good lookin'",
         "You have a great smile",
@@ -170,7 +171,10 @@ class Kids(callbacks.Plugin):
                 nick = random.choice(u)
             except IndexError:
                 nick = msg.nick
-        irc.reply(_youre_awesome(),to=nick)
+        if nick == "help":
+            irc.reply("you dont need help being awesome")
+        else:
+            irc.reply(_youre_awesome(),to=nick)
 
 
     def calc(self,irc,msg,args):
