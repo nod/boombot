@@ -25,6 +25,7 @@ def _youre_awesome():
         "You are a Superhero.  Here's your cape.",
         "If you're sad, you stop being sad and are awesome again",
         "You are totally full-on complete double rainbow all the way across the sky!",
+        "Your hat. Is. AWESOME!",
         # http://hubpages.com/hub/25-reasons-I-think-you-are-AWESOME
         "You are so damn good lookin'",
         "You have a great smile",
@@ -151,7 +152,26 @@ class Kids(callbacks.Plugin):
         """
         you dont need help being awesome
         """
-        irc.reply(_youre_awesome())
+        if args:
+            nick = ' '.join(args)
+        else:
+            # pick a random nick from the chan if none given
+            channel = msg.args[0]
+            u = list(irc.state.channels[channel].users)
+            try:
+                u.remove("boom")
+            except:
+                pass
+            try:
+                u.remove(msg.nick)
+            except:
+                pass
+            try:
+                nick = random.choice(u)
+            except IndexError:
+                nick = msg.nick
+        irc.reply(_youre_awesome(),to=nick)
+
 
     def calc(self,irc,msg,args):
         """
