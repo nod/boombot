@@ -330,6 +330,9 @@ class QuoteGrabs(callbacks.Plugin):
         nick_re = re.compile("^\*(\d+)$")
         # allow old style syntax:  *2,nick
         args = [ x for arg in args for x in arg.split(',') if x ]
+        if not args:
+            irc.reply( self._random_and_strip_addressed(channel) )
+            return
         for nick in args:
             try:
                 found = nick_re.match(nick)
