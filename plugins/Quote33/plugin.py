@@ -93,8 +93,8 @@ class SqliteQuoteGrabsDB(object):
                           hostmask TEXT,
                           added_by TEXT,
                           added_at TIMESTAMP,
-                          quote TEXT, 
-                          vote INTEGER DEFAULT 0
+                          quote TEXT,
+                          votes INTEGER DEFAULT 0
                           );""")
         db.commit()
         return db
