@@ -65,7 +65,7 @@ def _youre_awesome():
 
 
 def _longurl_org(shorturl):
-    url = urllib.quote_plus(args[0])
+    url = urllib.quote_plus(shorturl)
     url = 'http://api.longurl.org/v2/expand?url=%s' % url
     html = urllib2.urlopen(url).read()
     soup = BeautifulSoup(html)
@@ -85,8 +85,8 @@ def _longurlplease(shorturl):
 
 def longurl(shorturl):
     unwanted_url_parameters = ('utm_source','utm_medium','utm_campaign')
-    #longurl = _longurl_org(shorturl)
-    longurl = _longurlplease(shorturl)
+    longurl = _longurl_org(shorturl)
+    #longurl = _longurlplease(shorturl)
     return remove_params(longurl,remove=unwanted_url_parameters)
 
 def get_url_title(url):
