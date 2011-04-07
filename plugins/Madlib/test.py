@@ -29,9 +29,86 @@
 ###
 
 from supybot.test import *
+import re
+
+madlib = plugin.loadPluginModule('Madlib')
+
+class MadlibGeneratorLoadingTestCase(SupyTestCase):
+    def setUp(self):
+        SupyTestCase.setUp(self)
+        self.words = madlib.plugin.MadlibGenerator().loadWords()
+
+    def testNounsLoaded(self):
+        self.assertEqual(len(self.words['noun']), 3262)
+
+    def testColorsLoaded(self):
+        self.assertEqual(len(self.words['color']), 259)
+
+    def testDigitsLoaded(self):
+        self.assertEqual(len(self.words['digit']), 10)
+
+    def testLettersLoaded(self):
+        self.assertEqual(len(self.words['letter']), 26)
+
+    def testMonthsLoaded(self):
+        self.assertEqual(len(self.words['month']), 12)
+
+    def testSwearsLoaded(self):
+        self.assertEqual(len(self.words['swear']), 7)
+
+    def testNumberIsFunction(self):
+        self.assertTrue(hasattr(self.words['number'], '__call__'))
+
+class MadlibGeneratorNumberGeneratorTestCase(SupyTestCase):
+    def setUp(self):
+        SupyTestCase.setUp(self)
+        self.number = madlib.plugin.MadlibGenerator().number
+
+    def testReturnsNumberString(self):
+        num = self.number()
+        self.assertTrue(re.match('^\d+$', num))
+
+    def testReturnsRandomNumbers(self):
+        # 100 times should be enough to get more than one random number!
+        # since there's a nonzero chance that the same number could be
+        # returned twice.
+        numbers = [ self.number() for _ in range(0,100) ]
+        self.assertTrue( len(set(numbers)) > 1 )
+
+class MadlibGeneratorSubtitionTestCase(SupyTestCase):
+    def setUp(self):
+        SupyTestCase.setUp(self)
+        self.generator = madlib.plugin.MadlibGenerator()
+
+    def testSubtitutesNoun(self):
+        self.assertNotEqual('$noun', self.generator.madlib('$noun'))
+
+    def testMultipleNounSubstitutions(self):
+        self.assertFalse(
+            re.search('\$noun', self.generator.madlib('$noun $noun') ) )
+
+    def testSubstitutionWithFunction(self):
+        self.assertTrue(
+                re.match('^hello\d+goodbye$',
+                    self.generator.madlib('hello$numbergoodbye')))
+
+    def testPreservesCapitalizedPlaceholders(self):
+        self.generator.words['noun'] = ['item']
+        self.assertEqual('Item', self.generator.madlib('$Noun'))
+
+    def testPreservesAllUppercase(self):
+        self.generator.words['noun'] = ['item']
+        self.assertEqual('xxITEMxx', self.generator.madlib('xx$NOUNxx'))
+
 
 class MadlibTestCase(PluginTestCase):
     plugins = ('Madlib',)
 
+    def testMadlib(self):
+        self.assertNotError('madlib $noun $verb')
+
+    def testSubstitution(self):
+        response = self.getMsg('madlib $noun $verb').args[1]
+        self.assertNotEqual('$noun $verb', response)
 
 # vim:set shiftwidth=4 tabstop=4 expandtab textwidth=79:
