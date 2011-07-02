@@ -291,7 +291,7 @@ class Kids(callbacks.Plugin):
         else:
             drawing = "lotto"
         try:
-            html = urllib2.urlopen("http://www.txlottery.org/export/sites/default/index.html").read()
+            html = urllib2.urlopen("http://www.txlottery.org/export/sites/lottery/index.html").read()
             html = re.sub(r'</</p>','</p>',html) # fix bad html
             soup = BeautifulSoup(html)
         except:
