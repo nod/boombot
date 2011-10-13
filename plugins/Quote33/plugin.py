@@ -329,6 +329,7 @@ class QuoteGrabs(callbacks.Plugin):
         nick_re = re.compile("^\*(\d+)$")
         # allow old style syntax:  *2,nick
         args = [ x for arg in args for x in arg.split(',') if x ]
+        wildcard_grabbed = False # used to check for multiple wildcard queries
         if not args:
             irc.reply( self._random_and_strip_addressed(channel) )
             return
@@ -337,7 +338,12 @@ class QuoteGrabs(callbacks.Plugin):
                 found = nick_re.match(nick)
                 if not found:
                     irc.reply(self.db.getQuote(channel, nick))
+                elif wildcard_grabbed:
+                    # if they go through with a wildcard once, then don't let
+                    # them do it again. yes, i'm looking at you jeff.
+                    irc.reply('ignoring excessive wildcard requests. toad.')
                 else:
+                    wildcard_grabbed = True
                     n = int(found.groups()[0])
                     if n > 3:
                         irc.reply("NO SOUP FOR YOU (limited to 3)")
