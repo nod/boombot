@@ -342,6 +342,7 @@ class QuoteGrabs(callbacks.Plugin):
                     # if they go through with a wildcard once, then don't let
                     # them do it again. yes, i'm looking at you jeff.
                     irc.reply('ignoring excessive wildcard requests. toad.')
+                    break
                 else:
                     wildcard_grabbed = True
                     n = int(found.groups()[0])
