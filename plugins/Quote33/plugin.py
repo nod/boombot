@@ -72,10 +72,10 @@ class SqliteQuoteGrabsDB(object):
         def p(s1, s2):
             return int(ircutils.nickEqual(s1.encode('iso8859-1'),
                                           s2.encode('iso8859-1')))
-      
+
         # norf 4-1-2010
         #ALTER TABLE quotegrabs ADD votes INTEGER DEFAULT 0;
-        
+
         if filename in self.dbs:
             self.dbs[filename].create_function('nickeq', 2, p)
             return self.dbs[filename]
@@ -113,7 +113,6 @@ class SqliteQuoteGrabsDB(object):
             raise dbi.NoRecordError
 
     def random(self, channel, nick):
-    # def define(self,irc,msg,args):
 
         db = self._getDb(channel)
         cursor = db.cursor()
