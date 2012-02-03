@@ -10,6 +10,7 @@ import supybot.plugins as plugins
 import supybot.ircutils as ircutils
 import supybot.callbacks as callbacks
 import MySQLdb
+import urllib
 from biblebooks import books
 from html2text import html2text
 
@@ -359,14 +360,20 @@ class Bible(callbacks.Plugin):
         self.b(irc, msg, args)
         return
 
-    def net(self, irc, msg, args):
-        args = list(args)
-        args.reverse()
-        args.append('net')
-        args.reverse()
-        self.b(irc, msg, args)
+    def bible(self, irc, msg, args):
+        url = "http://labs.bible.org/api/?passage="
+        verse = urllib.urlopen(url+urllib.quote(' '.join(args))).read()
+        verse = verse.replace("<b>", "<")
+        verse = verse.replace("</b>", ">")
+        irc.reply(verse)
         return
+        #args = list(args)
+        #args.reverse()
+        #args.append('net')
+        #args.reverse()
+        #self.b(irc, msg, args)
+        #return
 
 Class = Bible
 
-# vim:set shiftwidth=4 softtabstop=4 expandtab textwidth=79:
+# vim:set tabstop=4 shiftwidth=4 softtabstop=4 expandtab textwidth=79:
