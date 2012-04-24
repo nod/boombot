@@ -103,7 +103,7 @@ class Woot(callbacks.Plugin):
     def __wootoff(self, soup):
         """woot! wootoff determination (test only)"""
         try:
-            wootoff = soup.find('div', attrs={'id':'ctl00_ctl00_ContentPlaceHolderLeadIn_ContentPlaceHolderLeadIn_SaleControl_PanelWootOff'})
+            wootoff = soup.find('div', attrs={'id':'ContentPlaceHolderLeadIn_ContentPlaceHolderLeadIn_SaleControl_PanelWootOffProgressBar'})
             if not wootoff: return None
             else:
                 wootoffpct = wootoff.find("div", {'class':'wootOffProgressBarValue'})
