@@ -300,10 +300,12 @@ class Bible(callbacks.Plugin):
         return verses
 
     def __connectDB(self):
+        return None  # mysql db no longer exists
         self.conn = MySQLdb.connect(
-            host = '69.31.131.141',
-            user = 'boom',
-            passwd = '33ad!',
+            host = None,
+            port = 3307,
+            user = None,
+            passwd = None,
             db = 'bible')
         self.cursor = self.conn.cursor()
 
