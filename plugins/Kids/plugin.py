@@ -337,14 +337,18 @@ class Kids(callbacks.Plugin):
             irc.reply(usage)
             return
         symbol = args[0]
+        for symbol in args:
+            q = self._fetch_stock_quote(symbol)
+            irc.reply(q)
+
+    def _fetch_stock_quote(self, symbol):
         url = urllib.quote_plus(symbol)
         url = 'http://finance.yahoo.com/q?s=%s' % url
         try:
             html = urllib2.urlopen(url).read()
             soup = BeautifulSoup(html)
         except:
-            irc.reply("error looking up %s" % symbol)
-            return
+            return "error looking up %s" % symbol
         time = soup.find(
             'span',
             id=re.compile(
@@ -396,9 +400,9 @@ class Kids(callbacks.Plugin):
                 # sometimes yahoo uses yfs_l84_<symbol> for price?!?
                 afterhours = " Afterhours: %s change from close: %s%s %s." % (afterhours, updown, ah_change, ah_pctchg)
         if not price:
-            irc.reply("error looking up %s" % symbol)
+            return "error looking up %s" % symbol
         else:
-            irc.reply("%s: %s as of %s. A change of %s %s.%s" % (symbol, price, time, change, pctchg, afterhours))
+            return "%s: %s as of %s. A change of %s %s.%s" % (symbol, price, time, change, pctchg, afterhours)
 
 
 Class = Kids
