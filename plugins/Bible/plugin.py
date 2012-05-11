@@ -181,7 +181,7 @@ class Bible(callbacks.Plugin):
                 irc.reply(ircStr)
                 return
         except Exception, e:
-            ircStr = 'error: %s' % e
+            ircStr = 'error: %s. try @bible' % e
             irc.reply(ircStr)
 
         return
