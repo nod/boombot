@@ -27,6 +27,7 @@ def _youre_awesome():
         "You are totally full-on complete double rainbow all the way across the sky!",
         "Your hat. Is. AWESOME!",
         "http://bit.ly/9xyr2y",
+        "http://i.imgur.com/jGYrf.gif",
         # http://hubpages.com/hub/25-reasons-I-think-you-are-AWESOME
         "You are so damn good lookin'",
         "You have a great smile",
