@@ -82,15 +82,15 @@ class Outside(callbacks.Plugin):
             Current Meteorological Codes from
             http://weather.noaa.gov/weather/metar.shtml
         """
-        soup = self._getsoup("http://weather.noaa.gov/cgi-bin/mgetmetar.pl?cccc=%s" % urllib.quote(loc))
+        soup = self._getsoup("http://www.aviationweather.gov/adds/metars/?station_ids=%s&std_trans=standar&chk_metars=ond&hoursStr=most+recent+only" % urllib.quote(loc))
         if not soup:
-            self.errout(irc,"error retreiving weather.noaa.gov.  Are you sure it's still there?")
+            self.errout(irc,"error retrieving aviationweather.gov.  Are you sure it's still there?")
             return
-        #timestamp = soup.findAll("b")[1]
-        #timestamp = timestamp.contents[0].replace('\n','').strip()
-        metar = soup.find("font", {'face':"courier",'size':"5"})
-        metar = metar.contents[0].strip()
-        #irc.reply(timestamp+": "+metar)
+        metar = soup.find("font")
+        try:
+            metar = metar.contents[0].strip()
+        except AttributeError:
+            metar = "unknown ICAO airport abbreviation"
         irc.reply(metar)
     metar = wrap(metar, ['text'])
 
