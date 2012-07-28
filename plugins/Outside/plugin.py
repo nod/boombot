@@ -22,12 +22,9 @@ class Outside(callbacks.Plugin):
             return False
 
     def _getweather(self,loc,sel):
-        baseurl = "http://mobile.weather.gov/"
-        firsturl = baseurl + "port_zc.php?inputstring=%s" % urllib.quote(loc)
+        baseurl = "http://forecast.weather.gov/zipcity.php"
+        firsturl = baseurl + "?inputstring=%s" % urllib.quote(loc)
         soup = self._getsoup(firsturl)
-        if soup:
-            secondurl = baseurl + soup.find('a')['href'] + '&select=%d'%sel
-            soup = self._getsoup(secondurl)
         return soup
 
     def forecast(self, irc, msg, args, loc):
@@ -61,19 +58,10 @@ class Outside(callbacks.Plugin):
         if not soup:
             self.errout(irc,"error retreiving %s info.  Are you sure it's still there?" % loc)
             return
+        ul = soup.find('ul', "current-conditions-detail")
         conditions = []
-        try: conditions.append(soup.div.contents[2].strip()) # location
-        except: pass
-        try: conditions.append(soup.div.contents[8].strip().replace('&nbsp;','')) # gps
-        except: pass
-        try: conditions.append(soup.div.contents[12].strip().replace('&deg;','')) # conditions
-        except: pass
-        try: conditions.append(soup.div.contents[14].strip().replace('&deg;','').replace(' ','')) # temp
-        except: pass
-        try: conditions.append(soup.div.contents[16].strip().replace(' ','')) # humidity
-        except: pass
-        try: conditions.append(soup.div.contents[18].strip().replace(' ','')) # wind
-        except: pass
+        for label, txt in ul.findAll("li"):
+            conditions.append("%s: %s" % (label.text,txt.replace('&deg;','')))
         irc.reply(" - ".join(conditions))
     weather = wrap(weather, ['text'])
 
