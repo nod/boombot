@@ -22,12 +22,9 @@ class Outside(callbacks.Plugin):
             return False
 
     def _getweather(self,loc,sel):
-        baseurl = "http://mobile.weather.gov/"
-        firsturl = baseurl + "port_zc.php?inputstring=%s" % urllib.quote(loc)
+        baseurl = "http://forecast.weather.gov/zipcity.php"
+        firsturl = baseurl + "?inputstring=%s" % urllib.quote(loc)
         soup = self._getsoup(firsturl)
-        if soup:
-            secondurl = baseurl + soup.find('a')['href'] + '&select=%d'%sel
-            soup = self._getsoup(secondurl)
         return soup
 
     def forecast(self, irc, msg, args, loc):
@@ -61,19 +58,10 @@ class Outside(callbacks.Plugin):
         if not soup:
             self.errout(irc,"error retreiving %s info.  Are you sure it's still there?" % loc)
             return
+        ul = soup.find('ul', "current-conditions-detail")
         conditions = []
-        try: conditions.append(soup.div.contents[2].strip()) # location
-        except: pass
-        try: conditions.append(soup.div.contents[8].strip().replace('&nbsp;','')) # gps
-        except: pass
-        try: conditions.append(soup.div.contents[12].strip().replace('&deg;','')) # conditions
-        except: pass
-        try: conditions.append(soup.div.contents[14].strip().replace('&deg;','').replace(' ','')) # temp
-        except: pass
-        try: conditions.append(soup.div.contents[16].strip().replace(' ','')) # humidity
-        except: pass
-        try: conditions.append(soup.div.contents[18].strip().replace(' ','')) # wind
-        except: pass
+        for label, txt in ul.findAll("li"):
+            conditions.append("%s: %s" % (label.text,txt.replace('&deg;','')))
         irc.reply(" - ".join(conditions))
     weather = wrap(weather, ['text'])
 
@@ -82,15 +70,15 @@ class Outside(callbacks.Plugin):
             Current Meteorological Codes from
             http://weather.noaa.gov/weather/metar.shtml
         """
-        soup = self._getsoup("http://weather.noaa.gov/cgi-bin/mgetmetar.pl?cccc=%s" % urllib.quote(loc))
+        soup = self._getsoup("http://www.aviationweather.gov/adds/metars/?station_ids=%s&std_trans=standar&chk_metars=ond&hoursStr=most+recent+only" % urllib.quote(loc))
         if not soup:
-            self.errout(irc,"error retreiving weather.noaa.gov.  Are you sure it's still there?")
+            self.errout(irc,"error retrieving aviationweather.gov.  Are you sure it's still there?")
             return
-        #timestamp = soup.findAll("b")[1]
-        #timestamp = timestamp.contents[0].replace('\n','').strip()
-        metar = soup.find("font", {'face':"courier",'size':"5"})
-        metar = metar.contents[0].strip()
-        #irc.reply(timestamp+": "+metar)
+        metar = soup.find("font")
+        try:
+            metar = metar.contents[0].strip()
+        except AttributeError:
+            metar = "unknown ICAO airport abbreviation"
         irc.reply(metar)
     metar = wrap(metar, ['text'])
 
