@@ -12,7 +12,7 @@ from webutil.textutils import get_text,remove_params
 import urllib
 import urllib2
 import re
-import simplejson as json
+import json
 
 def _get_lotto_numbers(soup,drawing='lotto'):
     m = re.match(r'(lotto|mega)',drawing,re.IGNORECASE)
