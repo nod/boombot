@@ -365,7 +365,7 @@ class Kids(callbacks.Plugin):
             'span',
             id=re.compile(r'yfs_c\d+_%s'% re.escape(symbol.lower()))
             )
-        if change:
+        if change and change.img:
             sign = "" if change.img['alt'].lower() == "up" else "-"
         else:
             sign = ""
