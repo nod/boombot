@@ -39,7 +39,7 @@ import supybot.ircmsgs as ircmsgs
 import supybot.plugins as plugins
 import supybot.ircutils as ircutils
 import supybot.callbacks as callbacks
-import sqlite3 as sqlite
+import sqlite3
 
 class QuoteGrabsRecord(dbi.Record):
     __fields__ = [
@@ -57,35 +57,25 @@ class QuoteGrabsRecord(dbi.Record):
         return '%s (Said by: %s; grabbed by %s at %s)' % \
                   (self.text, self.hostmask, grabber, at)
 
-class SqliteQuoteGrabsDB(object):
-    def __init__(self, filename):
-        self.dbs = ircutils.IrcDict()
-        self.filename = filename
 
-    def close(self):
-        for db in self.dbs.itervalues():
-            db.close()
+def nickeq(s1, s2):
+    return int(ircutils.nickEqual(s1.encode('iso8859-1'),
+				  s2.encode('iso8859-1')))
 
-    def _getDb(self, channel):
-        #sqlite = plugins.importSqlite()
-        filename = plugins.makeChannelFilename(self.filename, channel)
-        def p(s1, s2):
-            return int(ircutils.nickEqual(s1.encode('iso8859-1'),
-                                          s2.encode('iso8859-1')))
 
-        # norf 4-1-2010
-        #ALTER TABLE quotegrabs ADD votes INTEGER DEFAULT 0;
+class SqliteQuoteGrabsDB(plugins.ChannelDBHandler):
 
-        if filename in self.dbs:
-            self.dbs[filename].create_function('nickeq', 2, p)
-            return self.dbs[filename]
+    def makeFilename(self, channel):
+        return plugins.makeChannelFilename("QuoteGrabs.sqlite.db", channel)
+
+    def makeDb(self, filename):
+        """Create the database and connect to it."""
         if os.path.exists(filename):
-            self.dbs[filename] = sqlite.connect(filename)
-            self.dbs[filename].create_function('nickeq', 2, p)
-            return self.dbs[filename]
-        db = sqlite.connect(filename)
-        self.dbs[filename] = db
-        self.dbs[filename].create_function('nickeq', 2, p)
+            db = sqlite3.connect(filename)
+            db.text_factory = str
+            return db
+        db = sqlite3.connect(filename)
+        db.text_factory = str
         cursor = db.cursor()
         cursor.execute("""CREATE TABLE quotegrabs (
                           id INTEGER PRIMARY KEY,
@@ -100,7 +90,7 @@ class SqliteQuoteGrabsDB(object):
         return db
 
     def get(self, channel, id):
-        db = self._getDb(channel)
+        db = self.getDb(channel)
         cursor = db.cursor()
         cursor.execute("""SELECT id, nick, quote, hostmask, added_at, added_by
                           FROM quotegrabs WHERE id = ?""", (id,))
@@ -114,9 +104,10 @@ class SqliteQuoteGrabsDB(object):
 
     def random(self, channel, nick):
 
-        db = self._getDb(channel)
+        db = self.getDb(channel)
         cursor = db.cursor()
         if nick:
+            db.create_function('nickeq', 2, nickeq)
             cursor.execute("""SELECT id, quote, votes FROM quotegrabs
                               WHERE nickeq(nick, ?)
                               AND votes >= 0
@@ -132,8 +123,9 @@ class SqliteQuoteGrabsDB(object):
             raise dbi.NoRecordError
 
     def list(self, channel, nick):
-        db = self._getDb(channel)
+        db = self.getDb(channel)
         cursor = db.cursor()
+        db.create_function('nickeq', 2, nickeq)
         cursor.execute("""SELECT id, quote FROM quotegrabs
                           WHERE nickeq(nick, ?)
                           ORDER BY id DESC""", (nick,))
@@ -141,7 +133,7 @@ class SqliteQuoteGrabsDB(object):
                 for (id, quote) in cursor.fetchall()]
 
     def getQuote(self, channel, nick):
-        db = self._getDb(channel)
+        db = self.getDb(channel)
         cursor = db.cursor()
         cursor.execute("""SELECT id, quote, votes FROM quotegrabs
                           WHERE nickeq(nick, ?)
@@ -153,7 +145,7 @@ class SqliteQuoteGrabsDB(object):
             raise dbi.NoRecordError
 
     def select(self, channel, nick):
-        db = self._getDb(channel)
+        db = self.getDb(channel)
         cursor = db.cursor()
         cursor.execute("""SELECT added_at FROM quotegrabs
                           WHERE nickeq(nick, ?)
@@ -165,7 +157,7 @@ class SqliteQuoteGrabsDB(object):
             raise dbi.NoRecordError
 
     def updateVote(self, channel, id, vote):
-        db = self._getDb(channel)
+        db = self.getDb(channel)
         cursor = db.cursor()
         query = """UPDATE quotegrabs
                    SET votes = votes + %d
@@ -175,7 +167,7 @@ class SqliteQuoteGrabsDB(object):
 
     def add(self, msg, by):
         channel = msg.args[0]
-        db = self._getDb(channel)
+        db = self.getDb(channel)
         cursor = db.cursor()
         text = ircmsgs.prettyPrint(msg)
         # Check to see if the latest quotegrab is identical
@@ -191,7 +183,7 @@ class SqliteQuoteGrabsDB(object):
         db.commit()
 
     def search(self, channel, text):
-        db = self._getDb(channel)
+        db = self.getDb(channel)
         cursor = db.cursor()
         text = '%' + text + '%'
         cursor.execute("""SELECT id, nick, quote FROM quotegrabs
@@ -204,7 +196,7 @@ class SqliteQuoteGrabsDB(object):
         else:
             raise dbi.NoRecordError
 
-QuoteGrabsDB = plugins.DB('QuoteGrabs', {'sqlite': SqliteQuoteGrabsDB})
+QuoteGrabsDB = plugins.DB('QuoteGrabs', {'sqlite3': SqliteQuoteGrabsDB})
 
 class QuoteGrabs(callbacks.Plugin):
     """Add the help for "@help QuoteGrabs" here."""
