@@ -135,6 +135,7 @@ class SqliteQuoteGrabsDB(plugins.ChannelDBHandler):
     def getQuote(self, channel, nick):
         db = self.getDb(channel)
         cursor = db.cursor()
+        db.create_function('nickeq', 2, nickeq)
         cursor.execute("""SELECT id, quote, votes FROM quotegrabs
                           WHERE nickeq(nick, ?)
                           ORDER BY id DESC LIMIT 1""", (nick,))
@@ -147,6 +148,7 @@ class SqliteQuoteGrabsDB(plugins.ChannelDBHandler):
     def select(self, channel, nick):
         db = self.getDb(channel)
         cursor = db.cursor()
+        db.create_function('nickeq', 2, nickeq)
         cursor.execute("""SELECT added_at FROM quotegrabs
                           WHERE nickeq(nick, ?)
                           ORDER BY id DESC LIMIT 1""", (nick,))
