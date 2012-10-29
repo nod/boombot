@@ -2,10 +2,43 @@
 from supybot.commands import *
 import supybot.callbacks as callbacks
 
+from datetime import datetime
+
 from weather import Weather
 
 class Outside(callbacks.Plugin):
     """Some useful tools for Outside."""
+
+    _api_limits = {}
+
+    def _limit_api(self, irc, f):
+        """
+        the wunderground api is limited to 10 requests per second
+        this creates a class member dictionary of Day_of_yearHourMin that
+        keeps counts.
+        """
+        # clean out older keys so the cache doesn't grow huge
+        yesterday_of_year = str(int(datetime.now().strftime(%j) - 1))
+        for k in Outside._api_limits:
+            if k.startswith(yesterday_of_year):
+                del Outside._api_limits[k]
+
+        # now create our new key and save it
+        n = datetime.now().strftime('%j%H%M')
+        Outside._api_limits[n] = Outside._api_limits.get(n, 0) + 1
+
+        # now make sure we're not over limit
+        if Outside._api_limits[n] >= 10:
+            return irc.reply(
+                'api rate limited per minute. try again in a few seconds'
+                )
+
+        results = f() # call our weather api method
+        # output results
+        if type(results) == basestring:
+            irc.reply(results)
+        else:
+            for r in results: irc.reply(r)
 
     def __init__(self,irc):
         callbacks.Privmsg.__init__(self,irc)
@@ -16,15 +49,16 @@ class Outside(callbacks.Plugin):
             (sorry, you international folks have to go look out a window)
             tells you the forecast for your area
         """
-        irc.reply(Weather.forecast(loc))
+        self._limit_api(lambda: Weather.forecast(loc))
     forecast = wrap(forecast, ['text'])
 
     def weather(self, irc, msg, args, loc):
         """[location]
             location must be zip
             (sorry, you international folks have to go look out a window)
-            tells you the current weather for your area"""
-        irc.reply(Weather.current(loc))
+            tells you the current weather for your area
+        """
+        self._limit_api(lambda:Weather.current(loc))
     weather = wrap(weather, ['text'])
 
     def severe(self, irc, msg, args, loc):
@@ -34,24 +68,14 @@ class Outside(callbacks.Plugin):
             (sorry, you international folks have to go look out a window)
             tells you the forecast for your area
         """
-        count = 0
-        for alert in Weather.severe(loc):
-            count += 1
-            irc.reply(alert)
-        if not count:
-            irc.reply('no weather alerts')
+        self._limit_api(lambda: Weather.severe(loc) or 'no alerts')
     severe = wrap( severe, ['text'])
 
     def hurricanes(self, irc, msg, args):
         """
         returns hurricane listings
         """
-        count = 0
-        for h in Weather.hurricane():
-            count += 1
-            irc.reply(h)
-        if not count:
-            irc.reply('no hurricanes')
+        self._limit_api(lambda: Weather.hurricane() or 'no hurricanes')
     hurricanes = wrap(hurricanes, [])
 
 Class = Outside
