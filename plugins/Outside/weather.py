@@ -90,12 +90,16 @@ class Weather(object):
     def current(cls, loc):
         w = Wunder()
         data = w.request(features=['conditions'], location=loc)
-        ret = []
-        return 'currently in {}: {}, {} F, feels like {}'.format(
-            data['current_observation']['observation_location']['full'],
+        lat = data['current_observation']['display_location']['latitude']
+        lon = data['current_observation']['display_location']['longitude']
+        map = 'https://maps.google.com/maps?z=10&lci=weather&ll={},{}'.format(
+            lat[:6],lon[:6])
+        return 'currently in {}: {}, {} F, feels like {} {}'.format(
+            data['current_observation']['display_location']['full'],
             data['current_observation']['weather'],
             data['current_observation']['temp_f'],
-            data['current_observation']['feelslike_string']
+            data['current_observation']['feelslike_string'],
+            map
             )
 
 
@@ -138,11 +142,11 @@ if __name__ == '__main__':
 
 
     print "----------- current ------------"
-    # print Weather.current('78641')
+    print Weather.current('78641')
 
 
     # print Weather.severe('78641')
     # print Weather.severe('08204')
 
 
-    print Weather.hurricane()
+    # print Weather.hurricane()
