@@ -91,7 +91,7 @@ class Weather(object):
         w = Wunder()
         data = w.request(features=['conditions'], location=loc)
         ret = []
-        return 'currently in {}: {}, {}F, feels like {}'.format(
+        return 'currently in {}: {}, {} F, feels like {}'.format(
             data['current_observation']['observation_location']['full'],
             data['current_observation']['weather'],
             data['current_observation']['temp_f'],
