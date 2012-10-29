@@ -98,6 +98,18 @@ class Weather(object):
             data['current_observation']['feelslike_string']
             )
 
+    @classmethod
+    def severe(cls, loc):
+        w = Wunder()
+        data = w.request(features=['alerts'], location=loc)
+        ret = []
+        for a in data['alerts'][:3]:
+            ret.append( '{}: {} (expires: {})'.format(
+                a['description'],
+                a['message'].replace('\n',' ')[:360],
+                a['expires']
+                ) )
+        return ret
 
 
 if __name__ == '__main__':
@@ -110,3 +122,5 @@ if __name__ == '__main__':
     print Weather.current('78641')
 
 
+    print Weather.severe('78641')
+    print Weather.severe('08204')
