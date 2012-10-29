@@ -9,7 +9,7 @@ import supybot.ircmsgs as ircmsgs
 import supybot.plugins as plugins
 import supybot.ircutils as ircutils
 import supybot.callbacks as callbacks
-import MySQLdb
+#import MySQLdb
 import urllib
 from biblebooks import books
 from html2text import html2text
@@ -67,7 +67,7 @@ class Bible(callbacks.Plugin):
                     query += "AND books.id >= '38'"
                 else:
                     book_match = [x for x in books if x.replace(' ','').startswith(self.q['in'].replace(' ','').lower())]
-                    if not book_match: 
+                    if not book_match:
                         self.q['error'] = 'invalid in parameter'
                         return False
                     query += "AND ("
@@ -91,7 +91,7 @@ class Bible(callbacks.Plugin):
                 else:
                     ircStr += ' %s %s ,' % (row[3], row[1])
                     #ircStr += '%d) %s %s ' % (count, row[3], row[1])
-            ircStr = re.sub(',$','',ircStr) 
+            ircStr = re.sub(',$','',ircStr)
             ircStr += " (total: %d)" % (verses_num)
             #irc.reply(ircStr)
             self.q['response'] = ircStr
@@ -113,7 +113,7 @@ class Bible(callbacks.Plugin):
             vreq = ' '.join(args[1:]).lower()
         except KeyError:
             vreq = ' '.join(args).lower()
-    
+
         self.q['translation'] = self.trans
         if self.srch2_re.match(vreq) or self.srch3_re.match(vreq):
             # request is going to be a search
@@ -138,22 +138,22 @@ class Bible(callbacks.Plugin):
                 return
             # above logic processed, returning response from bsearch
             irc.reply(self.q['response'])
-            return 
+            return
         vre = self.vre.match(vreq)
-        if not vre: 
+        if not vre:
             irc.reply('cannot determine verse')
             return
-      
-        try: 
+
+        try:
             book,cv = vre.groups()
             book_match = [x for x in books if x.replace(' ','').startswith(book.replace(' ',''))]
             if not book_match:
                 irc.reply('invalid request')
                 return
             book_id = books[book_match[0]]
-       
+
             verses = self.__get_verses(book_id, cv)
-            
+
             if verses.has_key('error'):
                 irc.reply(verses['error'])
                 return
@@ -302,17 +302,17 @@ class Bible(callbacks.Plugin):
 
     def __connectDB(self):
         return None  # mysql db no longer exists
-        self.conn = MySQLdb.connect(
-            host = '69.172.134.98',
-            port = 3307,
-            user = 'boom',
-            passwd = '33ad!',
-            db = 'bible')
-        self.cursor = self.conn.cursor()
+        #self.conn = MySQLdb.connect(
+        #    host = None,
+        #    port = 3307,
+        #    user = None,
+        #    passwd = None,
+        #    db = 'bible')
+        #self.cursor = self.conn.cursor()
 
     def __disconnectDB(self):
         self.cursor.close()
-        self.conn.close()    
+        self.conn.close()
 
     def nasb(self, irc, msg, args):
         args = list(args)
@@ -321,7 +321,7 @@ class Bible(callbacks.Plugin):
         args.reverse()
         self.b(irc, msg, args)
         return
-  
+
     def niv(self, irc, msg, args):
         args = list(args)
         args.reverse()
@@ -329,7 +329,7 @@ class Bible(callbacks.Plugin):
         args.reverse()
         self.b(irc, msg, args)
         return
- 
+
     def nkjv(self, irc, msg, args):
         args = list(args)
         args.reverse()

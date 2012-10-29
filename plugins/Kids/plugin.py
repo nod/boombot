@@ -12,7 +12,7 @@ from webutil.textutils import get_text,remove_params
 import urllib
 import urllib2
 import re
-import simplejson as json
+import json
 
 def _get_lotto_numbers(soup,drawing='lotto'):
     m = re.match(r'(lotto|mega)',drawing,re.IGNORECASE)
@@ -383,7 +383,7 @@ class Kids(callbacks.Plugin):
         afterhours = soup.find('span',id='yfs_l86_%s'%symbol.lower()) or ""
         if afterhours:
             afterhours = afterhours and get_text(afterhours) or ""
-            ah_change = soup.find('span',id='yfs_c85_%s'%symbol.lower())
+            ah_change = soup.find('span',id=re.compile(r'yfs_c(85|64)_%s'%symbol.lower()))
             if ah_change:
                 updown = ah_change.find('img')
                 if updown and updown.get('alt') == "Down":
@@ -391,7 +391,7 @@ class Kids(callbacks.Plugin):
                 else:
                     updown = ""
                 ah_change = ah_change and get_text(ah_change) or ""
-            ah_pctchg = soup.find('span',id='yfs_c86_%s'%symbol.lower())
+            ah_pctchg = soup.find('span',id=re.compile('yfs_(p44|c86)_%s'%symbol.lower()))
             if ah_pctchg:
                 ah_pctchg = ah_pctchg and get_text(ah_pctchg) or ""
             if afterhours == price:

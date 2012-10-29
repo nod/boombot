@@ -1,0 +1,5 @@
+git+git://gribble.git.sourceforge.net/gitroot/gribble/gribble#egg=gribble
+twisted
+pyparsing
+BeautifulSoup
+pyopenssl
