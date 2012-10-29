@@ -27,6 +27,7 @@ def _youre_awesome():
         "You are totally full-on complete double rainbow all the way across the sky!",
         "Your hat. Is. AWESOME!",
         "http://bit.ly/9xyr2y",
+        "http://i.imgur.com/jGYrf.gif",
         # http://hubpages.com/hub/25-reasons-I-think-you-are-AWESOME
         "You are so damn good lookin'",
         "You have a great smile",
@@ -336,53 +337,72 @@ class Kids(callbacks.Plugin):
             irc.reply(usage)
             return
         symbol = args[0]
+        for symbol in args:
+            q = self._fetch_stock_quote(symbol)
+            irc.reply(q)
+
+    def _fetch_stock_quote(self, symbol):
         url = urllib.quote_plus(symbol)
         url = 'http://finance.yahoo.com/q?s=%s' % url
         try:
             html = urllib2.urlopen(url).read()
             soup = BeautifulSoup(html)
         except:
-            irc.reply("error looking up %s" % symbol)
-            return
-        time = soup.find('span',id='yfs_t50_%s'%symbol.lower())
-        if not time:
-                time = soup.find('span',id='yfs_t10_%s'%symbol.lower())
+            return "error looking up %s" % symbol
+        time = soup.find(
+            'span',
+            id=re.compile(
+                r'yfs_t\d+_%s'% re.escape(symbol.lower())
+            ))
         time = time and get_text(time) or ""
-        price = soup.find('span',id='yfs_l90_%s'%symbol.lower())
-        if not price:
-                price = soup.find('span',id='yfs_l10_%s'%symbol.lower())
+        price = soup.find(
+            'span',
+            id=re.compile(
+                r'yfs_l\d+_%s'% re.escape(symbol.lower())
+            ))
         price = price and get_text(price) or ""
-        change = soup.find('span',id='yfs_c60_%s'%symbol.lower())
-        sign=""
-        if not change:
-                change = soup.find('span',id='yfs_c10_%s'%symbol.lower())
-                if change:
-                    direction = change.find('b',{'class':True})
-                    if direction:
-                        if re.search(r'down',direction['class']):
-                            sign = "-"
+        change = soup.find(
+            'span',
+            id=re.compile(r'yfs_c\d+_%s'% re.escape(symbol.lower()))
+            )
+        if change and change.img:
+            sign = "" if change.img['alt'].lower() == "up" else "-"
+        else:
+            sign = ""
         change = "%s%s" % (sign, change and get_text(change) or "")
-        pctchg = soup.find('span',id='yfs_p40_%s'%symbol.lower())
+        pctchg = soup.find(
+            'span',
+            id=re.compile(r'yfs_p\d+_%s'% re.escape(symbol.lower()))
+            )
         if not pctchg:
                 pctchg = soup.find('span',id=re.compile(r'yfs_(?:pp0|p20)_%s'%symbol.lower()))
         pctchg = pctchg and get_text(pctchg) or ""
         if pctchg:
             pctchg = re.sub(r'[\(\)]',r'',pctchg)
             pctchg = "(%s%s)" % (sign, pctchg)
-        afterhours = soup.find('span',id='yfs_l91_%s'%symbol.lower()) or ""
+        afterhours = soup.find('span',id='yfs_l86_%s'%symbol.lower()) or ""
         if afterhours:
             afterhours = afterhours and get_text(afterhours) or ""
-            ah_change = soup.find('span',id='yfs_z08_%s'%symbol.lower())
+            ah_change = soup.find('span',id='yfs_c85_%s'%symbol.lower())
             if ah_change:
+                updown = ah_change.find('img')
+                if updown and updown.get('alt') == "Down":
+                    updown = "-"
+                else:
+                    updown = ""
                 ah_change = ah_change and get_text(ah_change) or ""
-            ah_pctchg = soup.find('span',id='yfs_z09_%s'%symbol.lower())
+            ah_pctchg = soup.find('span',id='yfs_c86_%s'%symbol.lower())
             if ah_pctchg:
                 ah_pctchg = ah_pctchg and get_text(ah_pctchg) or ""
-            afterhours = " Afterhours: %s change from close: %s %s." % (afterhours, ah_change, ah_pctchg)
+            if afterhours == price:
+                afterhours = ""
+            else:
+                # sometimes yahoo uses yfs_l84_<symbol> for price?!?
+                afterhours = " Afterhours: %s change from close: %s%s %s." % (afterhours, updown, ah_change, ah_pctchg)
         if not price:
-            irc.reply("error looking up %s" % symbol)
+            return "error looking up %s" % symbol
         else:
-            irc.reply("%s: %s as of %s. A change of %s %s.%s" % (symbol, price, time, change, pctchg, afterhours))
+            return "%s: %s as of %s. A change of %s %s.%s" % (symbol, price, time, change, pctchg, afterhours)
 
 
 Class = Kids

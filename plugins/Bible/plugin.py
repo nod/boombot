@@ -182,7 +182,7 @@ class Bible(callbacks.Plugin):
                 irc.reply(ircStr)
                 return
         except Exception, e:
-            ircStr = 'error: %s' % e
+            ircStr = 'error: %s. try @bible' % e
             irc.reply(ircStr)
 
         return
@@ -301,8 +301,10 @@ class Bible(callbacks.Plugin):
         return verses
 
     def __connectDB(self):
+        return None  # mysql db no longer exists
         self.conn = MySQLdb.connect(
-            host = '69.31.131.141',
+            host = '69.172.134.98',
+            port = 3307,
             user = 'boom',
             passwd = '33ad!',
             db = 'bible')
