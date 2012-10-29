@@ -94,14 +94,13 @@ class Weather(object):
         lon = data['current_observation']['display_location']['longitude']
         map = 'https://maps.google.com/maps?z=10&lci=weather&ll={},{}'.format(
             lat[:6],lon[:6])
-        return 'currently in {}: {}, {} F, feels like {} {}'.format(
+        print data['current_observation']
+        return 'currently in {}: {}, {}F, {}'.format(
             data['current_observation']['display_location']['full'],
             data['current_observation']['weather'],
             data['current_observation']['temp_f'],
-            data['current_observation']['feelslike_string'],
             map
             )
-
 
     @classmethod
     def hurricane(cls):
