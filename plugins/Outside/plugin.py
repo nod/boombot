@@ -16,7 +16,7 @@ class Outside(callbacks.Plugin):
             (sorry, you international folks have to go look out a window)
             tells you the forecast for your area
         """
-        irc.reply(Weather.forecast(loc)
+        irc.reply(Weather.forecast(loc))
     forecast = wrap(forecast, ['text'])
 
     def weather(self, irc, msg, args, loc):
