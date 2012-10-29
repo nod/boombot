@@ -103,10 +103,10 @@ class Weather(object):
         w = Wunder()
         data = w.request(features=['alerts'], location=loc)
         ret = []
-        for a in data['alerts'][:3]:
+        for a in data['alerts'][:2]:
             ret.append( '{}: {} (expires: {})'.format(
                 a['description'],
-                a['message'].replace('\n',' ')[:360],
+                a['message'].replace('\n',' ')[:300],
                 a['expires']
                 ) )
         return ret

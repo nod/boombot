@@ -34,9 +34,11 @@ class Outside(callbacks.Plugin):
             (sorry, you international folks have to go look out a window)
             tells you the forecast for your area
         """
+        count = 0
         for alert in Weather.severe(loc):
+            count += 1
             irc.reply(alert)
-        else:
+        if not count:
             irc.reply('no weather alerts')
     severe = wrap( severe, ['text'])
 
