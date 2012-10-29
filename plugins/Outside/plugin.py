@@ -47,11 +47,12 @@ class Outside(callbacks.Plugin):
         returns hurricane listings
         """
         count = 0
-        for h in Weather.hurricane()
+        for h in Weather.hurricane():
             count += 1
             irc.reply(h)
         if not count:
             irc.reply('no hurricanes')
+    hurricanes = wrap(hurricanes, [])
 
 Class = Outside
 
