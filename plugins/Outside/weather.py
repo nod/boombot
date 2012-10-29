@@ -103,11 +103,11 @@ class Weather(object):
             )
 
     @classmethod
-    def hurricane(cls):
+    def hurricane(cls, cane=None):
         w = Wunder()
         # the api is broken, setting view overloads the uri request
         data = w.request(features=['currenthurricane'], location='view')
-        ret = []
+        ret = {}
         for h in data['currenthurricane']:
             name = h['stormInfo']['stormName_Nice']
             wind = '{} mph'.format(h['Current']['WindSpeed']['Mph'])
@@ -115,10 +115,13 @@ class Weather(object):
             lat = h['Current']['lat']
             lon = h['Current']['lon']
             map = 'https://maps.google.com/maps?z=5&lci=weather&ll={},{}'.format(lat,lon)
-            ret.append( '{}: wind {}, gusts {}, {}'.format(
-                name, wind, gust, map
-                ) )
-        return ret
+            ret[h['stormInfo']['stormName'].lower()] = (
+                '{}: wind {}, gusts {}, {}'.format(
+                    name, wind, gust, map
+                    )
+                )
+        if cane and cane.lower() in ret: return ret[cane]
+        else: return 'current hurricanes: {}'.format(', '.join(ret.keys()))
 
     @classmethod
     def severe(cls, loc):
@@ -141,11 +144,12 @@ if __name__ == '__main__':
 
 
     print "----------- current ------------"
-    print Weather.current('78641')
+    # print Weather.current('78641')
 
 
     # print Weather.severe('78641')
     # print Weather.severe('08204')
 
 
-    # print Weather.hurricane()
+    print Weather.hurricane()
+    print Weather.hurricane('sandy')
