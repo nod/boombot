@@ -98,6 +98,25 @@ class Weather(object):
             data['current_observation']['feelslike_string']
             )
 
+
+    @classmethod
+    def hurricane(cls):
+        w = Wunder()
+        # the api is broken, setting view overloads the uri request
+        data = w.request(features=['currenthurricane'], location='view')
+        ret = []
+        for h in data['currenthurricane']:
+            name = h['stormInfo']['stormName_Nice']
+            wind = '{} mph'.format(h['Current']['WindSpeed']['Mph'])
+            gust = '{} mph'.format(h['Current']['WindGust']['Mph'])
+            lat = h['Current']['lat']
+            lon = h['Current']['lon']
+            map = 'https://maps.google.com/maps?q=+{},+{}'.format(lat,lon)
+            ret.append( '{}: wind {}, gusts {}, {}'.format(
+                name, wind, gust, map
+                ) )
+        return ret
+
     @classmethod
     def severe(cls, loc):
         w = Wunder()
@@ -115,12 +134,15 @@ class Weather(object):
 if __name__ == '__main__':
 
     print "----------- forecast ------------"
-    print Weather.forecast('78641')
+    # print Weather.forecast('78641')
 
 
     print "----------- current ------------"
-    print Weather.current('78641')
+    # print Weather.current('78641')
 
 
-    print Weather.severe('78641')
-    print Weather.severe('08204')
+    # print Weather.severe('78641')
+    # print Weather.severe('08204')
+
+
+    print Weather.hurricane()

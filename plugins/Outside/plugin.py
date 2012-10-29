@@ -42,6 +42,17 @@ class Outside(callbacks.Plugin):
             irc.reply('no weather alerts')
     severe = wrap( severe, ['text'])
 
+    def hurricanes(self, irc, msg, args):
+        """
+        returns hurricane listings
+        """
+        count = 0
+        for h in Weather.hurricane()
+            count += 1
+            irc.reply(h)
+        if not count:
+            irc.reply('no hurricanes')
+
 Class = Outside
 
 # vim:set shiftwidth=4 tabstop=4 expandtab textwidth=78:
