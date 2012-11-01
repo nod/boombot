@@ -21,7 +21,7 @@ class Outside(callbacks.Plugin):
             '...'.join( '{}:{}'.format(k,v) for k,v in Outside._api_limits.iteritems())))
         # clean out older keys so the cache doesn't grow huge
         yesterday_of_year = str(int(datetime.now().strftime('%j')) - 1)
-        for k in Outside._api_limits:
+        for k in Outside._api_limits.keys():
             if k.startswith(yesterday_of_year):
                 del Outside._api_limits[k]
 
