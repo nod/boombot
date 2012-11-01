@@ -119,7 +119,7 @@ class Weather(object):
             gust = '{} mph'.format(h['Current']['WindGust']['Mph'])
             lat = h['Current']['lat']
             lon = h['Current']['lon']
-            map = 'https://maps.google.com/maps?z=3&lci=weather&ll={},{}'.format(lat,lon)
+            map = 'https://maps.google.com/maps?z=4&lci=weather&q={},{}'.format(lat,lon)
             ret[h['stormInfo']['stormName'].lower()] = (
                 '{}: wind {}, gusts {}, {}'.format(
                     name, wind, gust, map
