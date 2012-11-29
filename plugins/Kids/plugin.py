@@ -15,7 +15,7 @@ import re
 import json
 
 def _get_lotto_numbers(soup,drawing='lotto'):
-    m = re.match(r'(lotto|mega)',drawing,re.IGNORECASE)
+    m = re.match(r'(lotto|mega|powerball)',drawing,re.IGNORECASE)
     if m:
         drawing = m.group(1).capitalize()
     return " ".join(map(get_text, soup.findAll('td','NewLatestResults%s'%drawing)))
