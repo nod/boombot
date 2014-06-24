@@ -233,34 +233,37 @@ class Kids(callbacks.Plugin):
         irc.reply( "heads" if random.randint(0,1) else "tails" )
 
 
-    def roll(self,irc,msg,args):
+    def roll(self, irc, msg, args):
         """<ndm> [<ndm> ...]
-        roll n dice with m sides.
-        for instance: "roll 3d6" would roll 3 6-sided dice
+        Roll n dice with m sides.
+        For instance: "roll 3d6" would roll 3 6-sided dice.
+
+        If no prefix is given, rolling a single die is assumed.
         """
         if len(args) < 1:
             irc.reply(self.roll.__doc__)
             return
         repstr = ""
         for d in args:
+            # If we got an implicit single die roll (e.g. "d20"), change it
+            # to an explicit single die roll (e.g. "1d20").
+            if d.startswith('d'):
+                d = '1%s' % d
+
+            # Roll the dice and collect the results.
             try:
-                n,m = [int(i) for i in d.split('d')]
+                n, m = [int(i) for i in d.split('d')]
                 results = []
                 counter = 0
                 while counter < n:
                     results.append( random.randint(1,m) )
                     counter += 1
-                repstr += "%s(%s) " % (
-                    d,
-                    ",".join( str(i) for i in results )
-                    )
-            except:
-                irc.reply(
-                    "Bogus dice description: '%s'. Must look like 3d2" % d
-                    )
+                repstr += "%s(%s)" % (d, ", ".join(str(i) for i in results))
+            except ValueError:
+                irc.reply('Bogus dice description: "%s". Must look '
+                          'like: `d20` or `3d6`.' % d)
                 return
         irc.reply(repstr)
-
 
     def url(self,irc,msg,args):
         """<shorturl>
