@@ -258,7 +258,7 @@ class Kids(callbacks.Plugin):
                 while counter < n:
                     results.append( random.randint(1,m) )
                     counter += 1
-                repstr += "%s: %s" % (d, ", ".join(str(i) for i in results))
+                repstr += "%s(%s)" % (d, ", ".join(str(i) for i in results))
             except ValueError:
                 irc.reply('Bogus dice description: "%s". Must look '
                           'like: `d20` or `3d6`.' % d)
