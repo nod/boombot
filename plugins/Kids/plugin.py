@@ -14,11 +14,28 @@ import urllib2
 import re
 import json
 
-def _get_lotto_numbers(soup,drawing='lotto'):
-    m = re.match(r'(lotto|mega|powerball)',drawing,re.IGNORECASE)
-    if m:
-        drawing = m.group(1).capitalize()
-    return " ".join(map(get_text, soup.findAll('td','NewLatestResults%s'%drawing)))
+
+def _get_lotto_numbers(drawing='lotto'):
+
+    games = {
+            'lotto': 'Lotto Texas',
+            'mega': 'Mega Millions',
+            'power': 'Powerball',
+            }
+
+    try:
+        game = games[drawing.lower()]
+    except KeyError:
+        return "unknown lotto: \"%s\"" % drawing
+
+    try:
+        html = urllib2.urlopen("http://www.txlottery.org/export/sites/lottery/index.html").read()
+        soup = BeautifulSoup(html)
+    except Exception, e:
+        return "error looking up lotto: %s" % e
+
+    return get_text(soup.find('div', title=game))
+
 
 def _youre_awesome():
     awesomeness = (
@@ -286,7 +303,7 @@ class Kids(callbacks.Plugin):
         irc.reply("%s%s" % (expanded_url, title))
 
     def lotto(self, irc, msg, args):
-        """[lotto|mega]
+        """[lotto|mega|power]
 
         Gets winning numbers for the most recent Texas Lotto drawing
         """
@@ -294,14 +311,7 @@ class Kids(callbacks.Plugin):
             drawing = args[0]
         else:
             drawing = "lotto"
-        try:
-            html = urllib2.urlopen("http://www.txlottery.org/export/sites/lottery/index.html").read()
-            html = re.sub(r'</</p>','</p>',html) # fix bad html
-            soup = BeautifulSoup(html)
-        except:
-            irc.reply("error looking up lotto")
-            return
-        irc.reply(_get_lotto_numbers(soup, drawing))
+        irc.reply(_get_lotto_numbers(drawing))
 
     def company(self, irc, msg, args):
         """<company symbol>
