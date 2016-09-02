@@ -14,6 +14,8 @@ import urllib2
 import re
 import json
 
+from .yf import text_quote
+
 
 def _get_lotto_numbers(drawing='lotto'):
 
@@ -126,6 +128,7 @@ def get_url_title(url):
     else:
         title = "(%s)" % content_type
     return title
+
 
 class Kids(callbacks.Plugin):
     """Some useful tools for Kids."""
@@ -351,8 +354,11 @@ class Kids(callbacks.Plugin):
             return
         symbol = args[0]
         for symbol in args:
-            q = self._fetch_stock_quote(symbol)
-            irc.reply(q)
+            try:
+                q = text_quote(symbol)
+                irc.reply(q)
+            except urllib2.HTTPError:
+                irc.reply('unknown symbol "%s"' % symbol)
 
     def _fetch_stock_quote(self, symbol):
         url = urllib.quote_plus(symbol)
