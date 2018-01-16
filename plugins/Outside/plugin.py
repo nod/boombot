@@ -89,6 +89,15 @@ class Outside(callbacks.Plugin):
         self._limit_api(irc, lambda: Weather.hurricane(cane), 'no data' )
     hurricane = wrap(hurricane, ['text'])
 
+    def wthr(self, irc, msg, args, loc, st="TX"):
+        """[city] [state]
+        fetches weather from wttr.in
+        """
+        import requests
+        baseuri = "http://wttr.in/{},{}?n&0&T&q&u"
+        return requests.get(baseuri.format(loc,st)).text.strip() 
+    wthr = wrap(wthr, ['text', 'text'])
+
 Class = Outside
 
 # vim:set shiftwidth=4 tabstop=4 expandtab textwidth=78:
